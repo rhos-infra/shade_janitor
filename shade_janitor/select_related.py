@@ -25,11 +25,16 @@ class SelectRelatedResources:
 
         self._selection = {}
 
-    def _add(self, resource_type, uuid, name=None):
+    def _add(self, resource_type, uuid, name=None, data=None):
         if resource_type not in self._selection:
             self._selection[resource_type] = {}
         if uuid not in self._selection[resource_type]:
-            entry = {'id': uuid, 'name': name}
+            entry = {'id': uuid}
+            if name is not None:
+                entry['name'] = name
+            if data is not None:
+                for key in data.keys():
+                    entry[key] = data[key]
             self._selection[resource_type][uuid] = entry
 
     def select_instances(self):
