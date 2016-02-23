@@ -54,26 +54,34 @@ class SelectRelatedResources:
                         'floating_ip': fip.floating_ip_address,
                         })
 
+    def check_instance_blacklisted(self, instance):
+        skip_it = False
+        for entry in ['jenkins', 'slave', 'mirror']:
+            if entry in instance.name:
+                skip_it = True
+                break
+        return skip_it
+
     def select_instances(self):
         """
-        Excludes instances with either 'jenkins' or 'slave' in their names
+        select all instances
+
+        Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            for entry in ['jenkins', 'slave']:
-                if entry in instance.name:
-                    continue
+            if self.check_instance_blacklisted(instance):
+                continue
             self._add_instance(instance)
 
     def select_instances_name_substring(self, search_substring):
         """
         will select related resources based on provided substring
 
-        Excludes instances with either 'jenkins' or 'slave' in their names
+        Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            for entry in ['jenkins', 'slave']:
-                if entry in instance.name:
-                    continue
+            if self.check_instance_blacklisted(instance):
+                continue
             if search_substring in instance.name:
                 self._add_instance(instance)
 

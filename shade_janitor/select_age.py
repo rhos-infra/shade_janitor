@@ -25,14 +25,16 @@ class SelectAgeRelatedResources(SelectRelatedResources):
         print selection[key]
     """
 
-    def select_old_instances(self, powered_on_ttl=timedelta(hours=8), powered_off_ttl=timedelta(hours=1)):
+    def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
+                             powered_off_ttl=timedelta(hours=1)):
         """
-        Excludes instances with either 'jenkins' or 'slave' in their names
+        Check for old instances
+
+        Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            for entry in ['jenkins', 'slave']:
-                if entry in instance.name:
-                    continue
+            if self.check_instance_blacklisted(instance):
+                continue
 
             created_on = dateutil.parser.parse(instance.created)
             now = datetime.now(pytz.utc)
