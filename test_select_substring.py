@@ -2,6 +2,7 @@
 
 import shade
 from shade_janitor import select_related
+from shade_janitor.cleanup import cleanup_resources
 import pprint
 import datetime
 import pytz
@@ -29,3 +30,5 @@ resources.select_related_ports()
 resources.select_floatingips_unattached()
 
 pp.pprint(resources.get_selection())
+
+cleanup_resources(cloud, resources.get_selection(), dry_run=True)
