@@ -55,10 +55,11 @@ if __name__ == '__main__':
         if oldest is not None:
             substring = new_search_prefix[0:15]
             resources.select_instances_name_substring(substring)
-            resources.select_networks_name_substring(substring)
-            resources.select_subnets_name_substring(substring)
-            resources.select_routers_name_substring(substring)
-            resources.select_related_ports()
+            if cloud.has_service('neutron'):
+                resources.select_networks_name_substring(substring)
+                resources.select_subnets_name_substring(substring)
+                resources.select_routers_name_substring(substring)
+                resources.select_related_ports()
             resources.select_floatingips_unattached()
 
             cleanup = resources.get_selection()
@@ -67,10 +68,11 @@ if __name__ == '__main__':
         if substring is None:
             substring = ''
         resources.select_instances_name_substring(substring)
-        resources.select_networks_name_substring(substring)
-        resources.select_subnets_name_substring(substring)
-        resources.select_routers_name_substring(substring)
-        resources.select_related_ports()
+        if cloud.has_service('neutron'):
+            resources.select_networks_name_substring(substring)
+            resources.select_subnets_name_substring(substring)
+            resources.select_routers_name_substring(substring)
+            resources.select_related_ports()
         resources.select_floatingips_unattached()
 
         cleanup = resources.get_selection()
