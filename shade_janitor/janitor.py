@@ -2,6 +2,7 @@
 
 import shade
 from select_related import SelectRelatedResources
+from select_age import SelectAgeRelatedResources
 from cleanup import cleanup_resources
 import pprint
 import datetime
@@ -36,7 +37,10 @@ if __name__ == '__main__':
     resources = SelectRelatedResources(cloud)
     cleanup = {}
 
-#    if args.old_instances:
+    if args.old_instances:
+        age_resources = SelectAgeRelatedResources(cloud)
+        age_resources.select_old_instances()
+        pp.pprint(age_resources.get_selection())
 #        for instance in cloud.server_list():
 #        resources.select_instances_name_substring(args.prefix)
 #        resources.select_networks_name_substring(args.prefix)
@@ -59,8 +63,7 @@ if __name__ == '__main__':
 #            print (oldest, new_search_prefix, new_search_prefix[0:15])
 #            cleanup = identify_network_resources(new_search_prefix[0:15], auth, cleanup)
 #
-#    else:
-    if True:
+    else:
         substring = args.substring
         if substring is None:
             substring = ''

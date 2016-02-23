@@ -37,12 +37,14 @@ class SelectRelatedResources:
                     entry[key] = data[key]
             self._selection[resource_type][uuid] = entry
 
-    def _add_instance(self, instance):
+    def _add_instance(self, instance, age=None):
         """
         Helper to add instances to the selection list
         """
-        self._add('instances', instance.id, instance.name,
-                  data={'created_on': instance.created})
+        data = {'created_on': instance.created}
+        if age is not None:
+            data['age'] = age
+        self._add('instances', instance.id, instance.name, data=data)
 
     def _add_floatingip(self, fip):
         self._add('fips', fip.id,
