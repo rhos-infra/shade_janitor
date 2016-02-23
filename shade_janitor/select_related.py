@@ -145,8 +145,10 @@ class SelectRelatedResources:
             network_id = None
             if 'network_id' in port:
                 network_id = port['network_id']
-                if network_id in self._selection['nets']:
-                    pick_it = True
+                if 'nets' in self._selection:
+                    if network_id in self._selection['nets']:
+                        pick_it = True
+
             if pick_it and not router_interface:
                 self._add('ports', port['id'],
                           data={'subnet_ids': subnet_ids,
