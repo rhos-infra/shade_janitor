@@ -114,5 +114,37 @@ class SelectRelatedResources:
                 continue
             self._add('fips', fip.id, data={'attached': fip.attached})
 
+    def select_related_ports(self):
+        for port in self._cloud.list_ports():
+
+            pick_it = False
+
+            router_interface = False
+            if port['device_owner'] == u'network:router_interface':
+                router_interface = True
+
+            subnet_ids = []
+            for sub in port['fixed_ips']:
+                if 'subnet_id' in sub:
+                    subnet_ids.append(sub['subnet_id'])
+
+            if 'subnets' in self._selection:
+                for sub in subnet_ids:
+                    if sub in self._selection['subnets']:
+                        pick_it = True
+                        break
+
+            network_id = None
+            if 'network_id' in port:
+                network_id = port['network_id']
+                if network_id in self._selection['nets']:
+                    pick_it = True
+            if pick_it:
+                print port
+                self._add('ports', port['id'],
+                          data={'subnet_ids': subnet_ids,
+                                'router_interface': router_interface,
+                                'network_id': network_id})
+
     def get_selection(self):
         return self._selection
