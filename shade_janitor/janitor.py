@@ -73,8 +73,10 @@ if __name__ == '__main__':
         cleanup = resources.get_selection()
 
     pp.pprint(cleanup)
+    cleanup_resources(cloud, cleanup, dry_run=True)
+
     if args.run_cleanup:
-        cleanup_resources(cloud, cleanup, dry_run=True)
+        cleanup_resources(cloud, cleanup, dry_run=False)
 
 #    if args.run_cleanup:
 #        nova = auth['nova']
