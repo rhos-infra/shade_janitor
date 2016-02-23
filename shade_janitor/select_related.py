@@ -47,7 +47,7 @@ class SelectRelatedResources:
                     continue
             self._add('instances', instance.id, instance.name)
 
-    def select_insances_name_substring(self, search_substring):
+    def select_instances_name_substring(self, search_substring):
         """
         will select related resources based on provided substring
 
