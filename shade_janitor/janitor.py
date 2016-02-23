@@ -43,14 +43,15 @@ if __name__ == '__main__':
         old_resources = age_resources.get_selection()
         new_search_prefix = None
         oldest = None
-        for instance in old_resources['instances']:
-            rec = old_resources['instances'][instance]
-            if oldest is None or oldest > rec['created_on']:
-                oldest = rec['created_on']
-                new_search_prefix = rec['name']
-            print 'Found Old instance [{}] created on [{}] age [{}]'.format(
-                rec['name'], rec['created_on'], str(rec['age'])
-            )
+        if 'instances' in old_resources:
+            for instance in old_resources['instances']:
+                rec = old_resources['instances'][instance]
+                if oldest is None or oldest > rec['created_on']:
+                    oldest = rec['created_on']
+                    new_search_prefix = rec['name']
+                print 'Found Old instance [{}] created on [{}] age [{}]'.format(
+                    rec['name'], rec['created_on'], str(rec['age'])
+                )
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
