@@ -37,6 +37,13 @@ class SelectRelatedResources:
                     entry[key] = data[key]
             self._selection[resource_type][uuid] = entry
 
+    def _add_instance(self, instance):
+        """
+        Helper to add instances to the selection list
+        """
+        self._add('instances', instance.id, instance.name,
+                  data={'created_on': instance.created})
+
     def select_instances(self):
         """
         Excludes instances with either 'jenkins' or 'slave' in their names
@@ -45,7 +52,7 @@ class SelectRelatedResources:
             for entry in ['jenkins', 'slave']:
                 if entry in instance.name:
                     continue
-            self._add('instances', instance.id, instance.name)
+            self._add_instance(instance)
 
     def select_instances_name_substring(self, search_substring):
         """
@@ -58,7 +65,7 @@ class SelectRelatedResources:
                 if entry in instance.name:
                     continue
             if search_substring in instance.name:
-                self._add('instances', instance.id, instance.name)
+                self._add_instance(instance)
 
     def select_networks(self):
         """
