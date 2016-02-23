@@ -105,9 +105,14 @@ class SelectRelatedResources:
                 self._add('routers', router['id'], router['name'])
 
     def select_floatingips(self):
-        for fip in self._cloud.list_floatingips():
-            print fip
-            self._add('fips', fip.id, fip.name)
+        for fip in self._cloud.list_floating_ips():
+            self._add('fips', fip.id, data={'attached': fip.attached})
+
+    def select_floatingips_unattached(self):
+        for fip in self._cloud.list_floating_ips():
+            if fip.attached:
+                continue
+            self._add('fips', fip.id, data={'attached': fip.attached})
 
     def get_selection(self):
         return self._selection
