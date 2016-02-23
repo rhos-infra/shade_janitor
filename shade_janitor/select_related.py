@@ -101,7 +101,8 @@ class SelectRelatedResources:
 
     def select_routers_name_substring(self, search_substring):
         for router in self._cloud.list_routers():
-            self._add('routers', router['id'], router['name'])
+            if search_substring in router['name']:
+                self._add('routers', router['id'], router['name'])
 
     def select_floatingips(self):
         for fip in self._cloud.list_floatingips():
