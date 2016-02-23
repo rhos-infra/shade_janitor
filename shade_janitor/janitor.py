@@ -40,29 +40,28 @@ if __name__ == '__main__':
     if args.old_instances:
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances()
-        pp.pprint(age_resources.get_selection())
-#        for instance in cloud.server_list():
-#        resources.select_instances_name_substring(args.prefix)
-#        resources.select_networks_name_substring(args.prefix)
-#        resources.select_subnets_name_substring(args.prefix)
-#        resources.select_routers_name_substring(args.prefix)
-#        resources.select_related_ports()
-#
-#        cleanup_old = identify_old_instances(args.prefix, auth, cleanup)
-#        oldest = None
-#        new_search_prefix = None
-#        for instance in cleanup_old['instances']:
-#            rec = cleanup_old['instances'][instance]
-#            print rec
-#            if oldest is None or oldest > rec['created_on']:
-#                oldest = rec['created_on']
-#                new_search_prefix = rec['name']
-#                print (oldest, new_search_prefix, rec['age'])
-#
-#        if oldest is not None:
-#            print (oldest, new_search_prefix, new_search_prefix[0:15])
-#            cleanup = identify_network_resources(new_search_prefix[0:15], auth, cleanup)
-#
+        old_resources = age_resources.get_selection()
+        new_search_prefix = None
+        oldest = None
+        for instance in old_resources['instances']:
+            rec = old_resources['instances'][instance]
+            if oldest is None or oldest > rec['created_on']:
+                oldest = rec['created_on']
+                new_search_prefix = rec['name']
+            print 'Found Old instance [{}] created on [{}] age [{}]'.format(
+                rec['name'], rec['created_on'], str(rec['age'])
+            )
+
+        if oldest is not None:
+            substring = new_search_prefix[0:15]
+            resources.select_instances_name_substring(substring)
+            resources.select_networks_name_substring(substring)
+            resources.select_subnets_name_substring(substring)
+            resources.select_routers_name_substring(substring)
+            resources.select_related_ports()
+            resources.select_floatingips_unattached()
+
+            cleanup = resources.get_selection()
     else:
         substring = args.substring
         if substring is None:

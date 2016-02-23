@@ -25,7 +25,7 @@ class SelectAgeRelatedResources(SelectRelatedResources):
         print selection[key]
     """
 
-    def select_old_instances(self, ttl=timedelta(hours=8)):
+    def select_old_instances(self, powered_on_ttl=timedelta(hours=8), powered_off_ttl=timedelta(hours=1)):
         """
         Excludes instances with either 'jenkins' or 'slave' in their names
         """
@@ -37,5 +37,7 @@ class SelectAgeRelatedResources(SelectRelatedResources):
             created_on = dateutil.parser.parse(instance.created)
             now = datetime.now(pytz.utc)
             age = now - created_on
-            if age > ttl:
+            if age > powered_on_ttl:
+                self._add_instance(instance, age=age)
+            elif instance['OS-EXT-STS:power_state'] == 0 and age > powered_off_ttl:
                 self._add_instance(instance, age=age)
