@@ -62,6 +62,9 @@ class SelectRelatedResources:
                 break
         return skip_it
 
+    def check_instance_permenant(self, instance):
+        return 'permenant' in instance.name
+
     def select_instances(self):
         """
         select all instances

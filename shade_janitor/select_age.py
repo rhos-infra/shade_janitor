@@ -26,7 +26,8 @@ class SelectAgeRelatedResources(SelectRelatedResources):
     """
 
     def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
-                             powered_off_ttl=timedelta(hours=1)):
+                             powered_off_ttl=timedelta(hours=1),
+                             powered_on_permanent_ttl=timedelta(days=14)):
         """
         Check for old instances
 
@@ -39,7 +40,11 @@ class SelectAgeRelatedResources(SelectRelatedResources):
             created_on = dateutil.parser.parse(instance.created)
             now = datetime.now(pytz.utc)
             age = now - created_on
-            if age > powered_on_ttl:
-                self._add_instance(instance, age=age)
-            elif instance['OS-EXT-STS:power_state'] == 0 and age > powered_off_ttl:
+            if self.check_instance_permenant(instance):
+                if age > powered_on_permanent_ttl:
+                    self._add_instance(instance, age=age)
+            elif instance['OS-EXT-STS:power_state'] == 0:
+                if age > powered_off_ttl:
+                    self._add_instance(instance, age=age)
+            elif age > powered_on_ttl:
                 self._add_instance(instance, age=age)
