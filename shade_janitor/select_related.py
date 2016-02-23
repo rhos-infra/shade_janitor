@@ -44,6 +44,14 @@ class SelectRelatedResources:
         self._add('instances', instance.id, instance.name,
                   data={'created_on': instance.created})
 
+    def _add_floatingip(self, fip):
+        self._add('fips', fip.id,
+                  data={'attached': fip.attached,
+                        'network_id': fip.network,
+                        'fixed_ip': fip.fixed_ip_address,
+                        'floating_ip': fip.floating_ip_address,
+                        })
+
     def select_instances(self):
         """
         Excludes instances with either 'jenkins' or 'slave' in their names
@@ -106,13 +114,13 @@ class SelectRelatedResources:
 
     def select_floatingips(self):
         for fip in self._cloud.list_floating_ips():
-            self._add('fips', fip.id, data={'attached': fip.attached})
+            self._add_floatingip(fip)
 
     def select_floatingips_unattached(self):
         for fip in self._cloud.list_floating_ips():
             if fip.attached:
                 continue
-            self._add('fips', fip.id, data={'attached': fip.attached})
+            self._add_floatingip(fip)
 
     def select_related_ports(self):
         for port in self._cloud.list_ports():
