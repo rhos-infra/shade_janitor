@@ -40,6 +40,14 @@ def create_parser():
 
     return parser
 
+def select_resources(resources, substring):
+    resources.select_instances_name_substring(substring)
+    resources.select_networks_name_substring(substring)
+    resources.select_subnets_name_substring(substring)
+    resources.select_routers_name_substring(substring)
+    resources.select_related_ports()
+    resources.select_floatingips_unattached()
+
 if __name__ == '__main__':
 
     parser = create_parser()
@@ -74,26 +82,14 @@ if __name__ == '__main__':
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
-            resources.select_instances_name_substring(substring)
-            if cloud.has_service('neutron') or True:
-                resources.select_networks_name_substring(substring)
-                resources.select_subnets_name_substring(substring)
-                resources.select_routers_name_substring(substring)
-                resources.select_related_ports()
-            resources.select_floatingips_unattached()
+            select_resources(resources, substring)
 
             cleanup = resources.get_selection()
     else:
         substring = args.substring
         if substring is None:
             substring = ''
-        resources.select_instances_name_substring(substring)
-        if cloud.has_service('neutron') or True:
-            resources.select_networks_name_substring(substring)
-            resources.select_subnets_name_substring(substring)
-            resources.select_routers_name_substring(substring)
-            resources.select_related_ports()
-        resources.select_floatingips_unattached()
+        select_resources(resources, substring)
 
         cleanup = resources.get_selection()
 
