@@ -19,9 +19,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
-        '--old', dest='old_instances', action='store_true', help='attempt to identify old instances')
+        '--old', dest='old_instances', action='store_true',
+        help='attempt to identify old instances')
     parser.add_argument(
-        '--cleanup', dest='run_cleanup', action='store_true', help='attempt to do cleanup')
+        '--cleanup', dest='run_cleanup', action='store_true',
+        help='attempt to do cleanup')
 
     args = parser.parse_args()
 
@@ -50,9 +52,9 @@ if __name__ == '__main__':
                 if oldest is None or oldest > rec['created_on']:
                     oldest = rec['created_on']
                     new_search_prefix = rec['name']
-                print 'Found Old instance [{}] created on [{}] age [{}]'.format(
-                    rec['name'], rec['created_on'], str(rec['age'])
-                )
+                print ('Found Old instance [{}] created on [{}]'
+                       ' age [{}]').format(
+                    rec['name'], rec['created_on'], str(rec['age']))
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
