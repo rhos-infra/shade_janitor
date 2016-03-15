@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+
+
+class NoCloudException(Exception):
+    pass
 
 
 class Resources:
@@ -23,7 +26,7 @@ class Resources:
     def __init__(self, cloud):
         self._cloud = cloud
         if self._cloud is None:
-            raise Exception('No cloud provided')
+            raise NoCloudException('No cloud provided')
 
         self._selection = {}
 
