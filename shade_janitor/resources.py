@@ -1,28 +1,24 @@
 #!/usr/bin/env python
 
+from datetime import datetime
+from datetime import timedelta
+import dateutil.parser
+import pytz
 
-class SelectRelatedResources:
-    """ Helper class to allow you to easily select a group of resources
+class Resources:
+    """Helper class to allow you to easily select a group of resources.
 
-    this uses a shade openstack_cloud instance to query resources from
-    it stores id and name in a double dictionary with the first level
-    being resource type
+    This uses a shade openstack_cloud instance to query resources from
+    the cloud.
 
-    import shade
-    cloud = shade.openstack_cloud(cloud='cloud_name')
-    resources = SelectRelatedResources(cloud)
-
-    resources.select_all_networks()
-    selection = resources.get_selection()
-    for key in selection:
-        print selection[key]
+    It stores id and name in a double dictionary with the first level
+    being resource type.
     """
-
+    
+    BLACKLIST = ['jenkins', 'slave', 'mirror'] 
+        
     def __init__(self, cloud):
         self._cloud = cloud
-        if self._cloud is None:
-            raise Exception('No cloud provided')
-
         self._selection = {}
 
     def _add(self, resource_type, uuid, name=None, data=None):
@@ -38,9 +34,7 @@ class SelectRelatedResources:
             self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
-        """
-        Helper to add instances to the selection list
-        """
+        """Add instance to the selection list."""
         data = {'created_on': instance.created}
         if age is not None:
             data['age'] = age
@@ -54,43 +48,36 @@ class SelectRelatedResources:
                         'floating_ip': fip.floating_ip_address,
                         })
 
-    def check_instance_blacklisted(self, instance):
-        skip_it = False
-        for entry in ['jenkins', 'slave', 'mirror']:
-            if entry in instance.name:
-                skip_it = True
-                break
-        return skip_it
+    def is_blacklisted(self, instance):
+        return instance.name in self.BLACKLIST
 
-    def check_instance_permenant(self, instance):
+    def is_permenant(self, instance):
         return 'permenant' in instance.name
 
     def select_instances(self):
-        """
-        select all instances
+        """select all instances
 
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
-                continue
-            self._add_instance(instance)
+            if not self.check_instance_blacklisted(instance):
+                self._add_instance(instance)
 
-    def select_instances_name_substring(self, search_substring):
-        """
-        will select related resources based on provided substring
+    def select_instances_name_substring(self, search_str):
+        """Select related resources based on provided substring.
 
-        Excludes blacklisted instances
+        Excludes blacklisted instancesl.
+
+        :param search_substring: a string which is part of the instance name
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
-                continue
-            if search_substring in instance.name:
+            if search_str in instance.name and not self.is_blacklisted(instance):
                 self._add_instance(instance)
 
     def select_networks(self):
-        """
-        Exlcude router:external routers
+        """Select networks from the cloud.
+
+        Exlcude router:external routers.
         """
         for network in self._cloud.list_networks():
             if network['router:external']:
@@ -98,8 +85,9 @@ class SelectRelatedResources:
             self._add('nets', network['id'], network['name'])
 
     def select_networks_name_substring(self, search_substring):
-        """
-        Exlcude router:external routers
+        """Select networks based on provided substring.
+        
+        Exlcude router:external routers.
         """
         for network in self._cloud.list_networks():
             if network['router:external']:
@@ -108,34 +96,41 @@ class SelectRelatedResources:
                 self._add('nets', network['id'], network['name'])
 
     def select_subnets(self):
+        """Select subnets."""
         for subnet in self._cloud.list_subnets():
             self._add('subnets', subnet['id'], subnet['name'])
 
     def select_subnets_name_substring(self, search_substring):
+        """Select subnets based on provided substring."""
         for subnet in self._cloud.list_subnets():
             if search_substring in subnet['name']:
                 self._add('subnets', subnet['id'], subnet['name'])
 
     def select_routers(self):
+        """Select routers."""
         for router in self._cloud.list_routers():
             self._add('routers', router['id'], router['name'])
 
     def select_routers_name_substring(self, search_substring):
+        """Select routers based on provided substring."""
         for router in self._cloud.list_routers():
             if search_substring in router['name']:
                 self._add('routers', router['id'], router['name'])
 
     def select_floatingips(self):
+        """Select floatingips."""
         for fip in self._cloud.list_floating_ips():
             self._add_floatingip(fip)
 
     def select_floatingips_unattached(self):
+        """Select unattached floatingips."""
         for fip in self._cloud.list_floating_ips():
             if fip.attached:
                 continue
             self._add_floatingip(fip)
 
     def select_related_ports(self):
+        """Select related ports."""
         for port in self._cloud.list_ports():
 
             pick_it = False
@@ -172,5 +167,28 @@ class SelectRelatedResources:
                           data={'subnet_ids': subnet_ids,
                                 'network_id': network_id})
 
+    def select_old_instances(self,
+                             powered_on_ttl=timedelta(hours=8),
+                             powered_off_ttl=timedelta(hours=1),
+                             powered_on_permanent_ttl=timedelta(days=14)):
+        """Select old instances.
+
+        Excludes blacklisted instances
+        """
+        for instance in self._cloud.list_servers():
+            if not self.is_blacklisted(instance):
+                created_on = dateutil.parser.parse(instance.created)
+                now = datetime.now(pytz.utc)
+                age = now - created_on
+                if self.is_permenant(instance):
+                    if age > powered_on_permanent_ttl:
+                        self._add_instance(instance, age=age)
+                elif instance['OS-EXT-STS:power_state'] == 0:
+                    if age > powered_off_ttl:
+                        self._add_instance(instance, age=age)
+                elif age > powered_on_ttl:
+                    self._add_instance(instance, age=age)
+
     def get_selection(self):
+        """Return dictionary of selected resources."""
         return self._selection
