@@ -43,10 +43,10 @@ class TestResources(unittest.TestCase):
         r = SelectRelatedResources(Mock())
         instance = Mock()
         instance.name = 'abcde-rdo-ci-88-foo'
-        self.assertFalse(r.check_instance_permenant(instance))
+        self.assertFalse(r.is_permanent(instance))
 
     def test_is_permanent_perm_instance(self):
         r = SelectRelatedResources(Mock())
         instance = Mock()
         instance.name = 'permanent-rdo-ci-88-foo'
-        self.assertTrue(r.check_instance_permenant(instance))
+        self.assertTrue(r.is_permanent(instance))

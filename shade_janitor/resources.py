@@ -64,8 +64,8 @@ class SelectRelatedResources:
 
         return False
 
-    def check_instance_permenant(self, instance):
-        return 'permenant' in instance.name
+    def is_permanent(self, instance):
+        return 'permanent' in instance.name
 
     def select_instances(self):
         """

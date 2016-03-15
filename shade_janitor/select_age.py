@@ -40,7 +40,7 @@ class SelectAgeRelatedResources(SelectRelatedResources):
             created_on = dateutil.parser.parse(instance.created)
             now = datetime.now(pytz.utc)
             age = now - created_on
-            if self.check_instance_permenant(instance):
+            if self.is_permanent(instance):
                 if age > powered_on_permanent_ttl:
                     self._add_instance(instance, age=age)
             elif instance['OS-EXT-STS:power_state'] == 0:
