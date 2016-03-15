@@ -33,7 +33,7 @@ class SelectAgeRelatedResources(Resources):
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
 
             created_on = dateutil.parser.parse(instance.created)

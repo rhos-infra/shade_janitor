@@ -57,7 +57,7 @@ class Resources(object):
                         'floating_ip': fip.floating_ip_address,
                         })
 
-    def check_instance_blacklisted(self, instance):
+    def is_blacklisted(self, instance):
         """check to see if instance is blacklisted."""
         for entry in self.BLACKLIST:
             if entry in instance.name:
@@ -74,7 +74,7 @@ class Resources(object):
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
             self._add_instance(instance)
 
@@ -84,7 +84,7 @@ class Resources(object):
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
             if search_substring in instance.name:
                 self._add_instance(instance)
