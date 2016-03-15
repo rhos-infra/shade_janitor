@@ -86,9 +86,7 @@ if __name__ == '__main__':
 
             cleanup = resources.get_selection()
     else:
-        substring = args.substring
-        if substring is None:
-            substring = ''
+        substring = args.substring or ''
         select_resources(resources, substring)
 
         cleanup = resources.get_selection()
