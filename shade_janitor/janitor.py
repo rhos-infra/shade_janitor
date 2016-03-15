@@ -78,8 +78,8 @@ if __name__ == '__main__':
                 if oldest is None or oldest > rec['created_on']:
                     oldest = rec['created_on']
                     new_search_prefix = rec['name']
-                print ('Found Old instance [{}] created on [{}]'
-                       ' age [{}]').format(
+                print('Found Old instance [{}] created on [{}]'
+                      ' age [{}]').format(
                     rec['name'], rec['created_on'], str(rec['age']))
 
         if oldest is not None:
