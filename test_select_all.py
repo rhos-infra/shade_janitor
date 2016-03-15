@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import shade
-from shade_janitor import select_related
+from shade_janitor import resources
 import pprint
 import datetime
 import pytz
@@ -16,7 +16,7 @@ cloud = shade.openstack_cloud(cloud='rhos-component-ci')
 pp = pprint.PrettyPrinter(indent=4)
 now = datetime.datetime.now(pytz.utc)
 
-resources = select_related.SelectRelatedResources(cloud)
+resources = resources.SelectRelatedResources(cloud)
 
 resources.select_instances()
 resources.select_networks()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import shade
-from select_related import SelectRelatedResources
+from resources import SelectRelatedResources
 from select_age import SelectAgeRelatedResources
 from cleanup import cleanup_resources
 import pprint

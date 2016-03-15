@@ -5,7 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 import pytz
 
-from select_related import SelectRelatedResources
+from resources import SelectRelatedResources
 
 
 class SelectAgeRelatedResources(SelectRelatedResources):

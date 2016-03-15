@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import shade
-from shade_janitor import select_related
+from shade_janitor import resources
 from shade_janitor.cleanup import cleanup_resources
 import pprint
 import datetime
@@ -17,7 +17,7 @@ cloud = shade.openstack_cloud(cloud='rhos-component-ci')
 pp = pprint.PrettyPrinter(indent=4)
 now = datetime.datetime.now(pytz.utc)
 
-resources = select_related.SelectRelatedResources(cloud)
+resources = resources.SelectRelatedResources(cloud)
 # CI naming uses a job prefix like this for all resources
 prefix = '0y9d4-rhos-ci-122'
 resources.select_instances_name_substring(prefix)
