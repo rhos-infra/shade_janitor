@@ -10,8 +10,21 @@ from cleanup import cleanup_resources
 from select_age import SelectAgeRelatedResources
 from resources import SelectRelatedResources
 
-if __name__ == '__main__':
 
+def initialize_cloud(cloud_name):
+    """Initialize cloud object
+       Cloud configs are read with os-client-config
+
+    :param cloud_name: the cloud name
+    """
+
+    if not cloud_name:
+        raise Exception('No cloud provided')
+    else:
+        return shade.openstack_cloud(cloud=cloud_name)
+
+
+def create_parser():
     parser = argparse.ArgumentParser(
         description='Identify resources to be cleaned up.')
     parser.add_argument(
@@ -25,6 +38,11 @@ if __name__ == '__main__':
         '--cleanup', dest='run_cleanup', action='store_true',
         help='attempt to do cleanup')
 
+    return parser
+
+if __name__ == '__main__':
+
+    parser = create_parser()
     args = parser.parse_args()
 
     pp = pprint.PrettyPrinter(indent=4)
@@ -33,9 +51,7 @@ if __name__ == '__main__':
     # Initialize and turn on debug logging
     shade.simple_logging(debug=True)
 
-    # Initialize cloud
-    # Cloud configs are read with os-client-config
-    cloud = shade.openstack_cloud(cloud=args.cloud)
+    cloud = initialize_cloud(args.cloud)
 
     resources = SelectRelatedResources(cloud)
     cleanup = {}
