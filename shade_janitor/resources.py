@@ -5,20 +5,13 @@ class NoCloudException(Exception):
 
 
 class Resources(object):
-    """Helper class to allow you to easily select a group of resources
+    """Helper class to allow you to easily select a group of resources.
 
-    this uses a shade openstack_cloud instance to query resources from
-    it stores id and name in a double dictionary with the first level
-    being resource type
+    This uses a shade openstack_cloud instance to query resources from
+    the cloud.
 
-    import shade
-    cloud = shade.openstack_cloud(cloud='cloud_name')
-    resources = Resources(cloud)
-
-    resources.select_all_networks()
-    selection = resources.get_selection()
-    for key in selection:
-        print selection[key]
+    It stores id and name in a double dictionary with the first level
+    being resource type.
     """
 
     BLACKLIST = ['jenkins', 'slave', 'mirror']
@@ -43,7 +36,7 @@ class Resources(object):
             self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
-        """Helper to add instances to the selection list"""
+        """Add instance to the selection list."""
         data = {'created_on': instance.created}
         if age is not None:
             data['age'] = age
@@ -71,7 +64,9 @@ class Resources(object):
     def select_instances(self):
         """select all instances
 
-        Excludes blacklisted instances
+        Excludes blacklisted instances.
+
+        :param search_substring: a string which is part of the instance name
         """
         for instance in self._cloud.list_servers():
             if self.is_blacklisted(instance):
@@ -79,7 +74,7 @@ class Resources(object):
             self._add_instance(instance)
 
     def select_instances_name_substring(self, search_substring):
-        """will select related resources based on provided substring
+        """select related resources based on provided substring
 
         Excludes blacklisted instances
         """
@@ -90,14 +85,20 @@ class Resources(object):
                 self._add_instance(instance)
 
     def select_networks(self):
-        """Exlcude router:external routers"""
+        """Select networks from the cloud.
+
+        Exlcude router:external routers.
+        """
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
             self._add('nets', network['id'], network['name'])
 
     def select_networks_name_substring(self, search_substring):
-        """Exlcude router:external routers"""
+        """Select networks based on provided substring.
+
+        Exlcude router:external routers.
+        """
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
@@ -105,34 +106,41 @@ class Resources(object):
                 self._add('nets', network['id'], network['name'])
 
     def select_subnets(self):
+        """Select subnets."""
         for subnet in self._cloud.list_subnets():
             self._add('subnets', subnet['id'], subnet['name'])
 
     def select_subnets_name_substring(self, search_substring):
+        """Select subnets based on provided substring."""
         for subnet in self._cloud.list_subnets():
             if search_substring in subnet['name']:
                 self._add('subnets', subnet['id'], subnet['name'])
 
     def select_routers(self):
+        """Select routers."""
         for router in self._cloud.list_routers():
             self._add('routers', router['id'], router['name'])
 
     def select_routers_name_substring(self, search_substring):
+        """Select routers based on provided substring."""
         for router in self._cloud.list_routers():
             if search_substring in router['name']:
                 self._add('routers', router['id'], router['name'])
 
     def select_floatingips(self):
+        """Select floatingips."""
         for fip in self._cloud.list_floating_ips():
             self._add_floatingip(fip)
 
     def select_floatingips_unattached(self):
+        """Select unattached floatingips."""
         for fip in self._cloud.list_floating_ips():
             if fip.attached:
                 continue
             self._add_floatingip(fip)
 
     def select_related_ports(self):
+        """Select related ports."""
         for port in self._cloud.list_ports():
 
             pick_it = False

@@ -16,9 +16,8 @@ def initialize_cloud(cloud_name):
 
        Cloud configs are read with os-client-config
 
-    :param cloud_name: the cloud name
+       :param cloud_name: the cloud name
     """
-
     if not cloud_name:
         raise Exception('No cloud provided')
     else:
@@ -49,6 +48,7 @@ def select_resources(resources, substring):
     resources.select_routers_name_substring(substring)
     resources.select_related_ports()
     resources.select_floatingips_unattached()
+
 
 if __name__ == '__main__':
 
