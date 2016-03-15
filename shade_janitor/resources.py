@@ -18,6 +18,8 @@ class SelectRelatedResources:
         print selection[key]
     """
 
+    BLACKLIST = ['jenkins', 'slave', 'mirror']
+
     def __init__(self, cloud):
         self._cloud = cloud
         if self._cloud is None:
@@ -55,12 +57,12 @@ class SelectRelatedResources:
                         })
 
     def check_instance_blacklisted(self, instance):
-        skip_it = False
-        for entry in ['jenkins', 'slave', 'mirror']:
+        """check to see if instance is blacklisted."""
+        for entry in self.BLACKLIST:
             if entry in instance.name:
-                skip_it = True
-                break
-        return skip_it
+                return True
+
+        return False
 
     def check_instance_permenant(self, instance):
         return 'permenant' in instance.name
