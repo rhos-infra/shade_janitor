@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-import shade
-from select_related import SelectRelatedResources
-from select_age import SelectAgeRelatedResources
-from cleanup import cleanup_resources
-import pprint
+import argparse
 import datetime
+import pprint
 import pytz
+import shade
+
+from cleanup import cleanup_resources
+from select_age import SelectAgeRelatedResources
+from select_related import SelectRelatedResources
 
 if __name__ == '__main__':
-    import argparse
 
     parser = argparse.ArgumentParser(
         description='Identify resources to be cleaned up.')
