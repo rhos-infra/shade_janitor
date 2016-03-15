@@ -7,8 +7,8 @@ import pytz
 import shade
 
 from cleanup import cleanup_resources
-from select_age import SelectAgeRelatedResources
 from resources import Resources
+from select_age import SelectAgeRelatedResources
 
 
 def initialize_cloud(cloud_name):

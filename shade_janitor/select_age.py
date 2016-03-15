@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import dateutil.parser
-from datetime import datetime
-from datetime import timedelta
 import pytz
 
+from datetime import datetime
+from datetime import timedelta
 from resources import Resources
 
 
