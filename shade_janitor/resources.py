@@ -4,7 +4,7 @@ class NoCloudException(Exception):
     pass
 
 
-class Resources:
+class Resources(object):
     """Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
