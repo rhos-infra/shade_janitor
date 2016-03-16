@@ -31,6 +31,7 @@ class Resources(object):
         self._selection = {}
 
     def _add(self, resource_type, uuid, name=None, data=None):
+        """Add resource to selection list."""
         if resource_type not in self._selection:
             self._selection[resource_type] = {}
         if uuid not in self._selection[resource_type]:
@@ -43,13 +44,14 @@ class Resources(object):
             self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
-        """Helper to add instances to the selection list"""
+        """Add instance to the selection list"""
         data = {'created_on': instance.created}
         if age is not None:
             data['age'] = age
         self._add('instances', instance.id, instance.name, data=data)
 
     def _add_floatingip(self, fip):
+        """Add floating ip to the selection list"""
         self._add('fips', fip.id,
                   data={'attached': fip.attached,
                         'network_id': fip.network,
@@ -58,7 +60,7 @@ class Resources(object):
                         })
 
     def is_blacklisted(self, instance):
-        """check to see if instance is blacklisted."""
+        """Check if instance is blacklisted."""
         for entry in self.BLACKLIST:
             if entry in instance.name:
                 return True
@@ -66,10 +68,11 @@ class Resources(object):
         return False
 
     def is_permanent(self, instance):
+        """Check if instance is permanent."""
         return 'permanent' in instance.name
 
     def select_instances(self):
-        """select all instances
+        """Select all instances.
 
         Excludes blacklisted instances
         """
@@ -97,7 +100,7 @@ class Resources(object):
             self._add('nets', network['id'], network['name'])
 
     def select_networks_name_substring(self, search_substring):
-        """Exlcude router:external routers"""
+        """Select networks based on substring."""
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
@@ -105,34 +108,41 @@ class Resources(object):
                 self._add('nets', network['id'], network['name'])
 
     def select_subnets(self):
+        """Select routers."""
         for subnet in self._cloud.list_subnets():
             self._add('subnets', subnet['id'], subnet['name'])
 
     def select_subnets_name_substring(self, search_substring):
+        """Select subnets based on substring."""
         for subnet in self._cloud.list_subnets():
             if search_substring in subnet['name']:
                 self._add('subnets', subnet['id'], subnet['name'])
 
     def select_routers(self):
+        """Select routers."""
         for router in self._cloud.list_routers():
             self._add('routers', router['id'], router['name'])
 
     def select_routers_name_substring(self, search_substring):
+        """Select routers based on substring."""
         for router in self._cloud.list_routers():
             if search_substring in router['name']:
                 self._add('routers', router['id'], router['name'])
 
     def select_floatingips(self):
+        """Select floating ip."""
         for fip in self._cloud.list_floating_ips():
             self._add_floatingip(fip)
 
     def select_floatingips_unattached(self):
+        """Select unattached floating ip."""
         for fip in self._cloud.list_floating_ips():
             if fip.attached:
                 continue
             self._add_floatingip(fip)
 
     def select_related_ports(self):
+        """Select related ports."""
         for port in self._cloud.list_ports():
 
             pick_it = False
@@ -170,4 +180,5 @@ class Resources(object):
                                 'network_id': network_id})
 
     def get_selection(self):
+        """Returns selected resources."""
         return self._selection
