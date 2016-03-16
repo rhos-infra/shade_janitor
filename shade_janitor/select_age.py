@@ -5,10 +5,10 @@ from datetime import datetime
 from datetime import timedelta
 import pytz
 
-from resources import SelectRelatedResources
+from resources import Resources
 
 
-class SelectAgeRelatedResources(SelectRelatedResources):
+class SelectAgeRelatedResources(Resources):
     """ Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
@@ -17,7 +17,7 @@ class SelectAgeRelatedResources(SelectRelatedResources):
 
     import shade
     cloud = shade.openstack_cloud(cloud='cloud_name')
-    resources = SelectRelatedResources(cloud)
+    resources = Resources(cloud)
 
     resources.select_all_networks()
     selection = resources.get_selection()
