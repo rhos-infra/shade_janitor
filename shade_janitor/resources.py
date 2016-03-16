@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-class SelectRelatedResources:
+class Resources:
     """ Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
@@ -10,7 +10,7 @@ class SelectRelatedResources:
 
     import shade
     cloud = shade.openstack_cloud(cloud='cloud_name')
-    resources = SelectRelatedResources(cloud)
+    resources = Resources(cloud)
 
     resources.select_all_networks()
     selection = resources.get_selection()
