@@ -8,7 +8,7 @@ import shade
 
 from cleanup import cleanup_resources
 from select_age import SelectAgeRelatedResources
-from resources import SelectRelatedResources
+from resources import Resources
 
 
 def initialize_cloud(cloud_name):
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     cloud = initialize_cloud(args.cloud)
 
-    resources = SelectRelatedResources(cloud)
+    resources = Resources(cloud)
     cleanup = {}
 
     if args.old_instances:
