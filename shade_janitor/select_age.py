@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 import dateutil.parser
-from datetime import datetime
-from datetime import timedelta
 import pytz
 
-from resources import SelectRelatedResources
+from datetime import datetime
+from datetime import timedelta
+from resources import Resources
 
 
-class SelectAgeRelatedResources(SelectRelatedResources):
-    """ Helper class to allow you to easily select a group of resources
+class SelectAgeRelatedResources(Resources):
+    """Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
     it stores id and name in a double dictionary with the first level
@@ -17,7 +17,7 @@ class SelectAgeRelatedResources(SelectRelatedResources):
 
     import shade
     cloud = shade.openstack_cloud(cloud='cloud_name')
-    resources = SelectRelatedResources(cloud)
+    resources = Resources(cloud)
 
     resources.select_all_networks()
     selection = resources.get_selection()
@@ -28,13 +28,12 @@ class SelectAgeRelatedResources(SelectRelatedResources):
     def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
                              powered_off_ttl=timedelta(hours=1),
                              powered_on_permanent_ttl=timedelta(days=14)):
-        """
-        Check for old instances
+        """Check for old instances
 
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
 
             created_on = dateutil.parser.parse(instance.created)

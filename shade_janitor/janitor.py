@@ -7,12 +7,13 @@ import pytz
 import shade
 
 from cleanup import cleanup_resources
-from select_age import SelectAgeRelatedResources
 from resources import Resources
+from select_age import SelectAgeRelatedResources
 
 
 def initialize_cloud(cloud_name):
     """Initialize cloud object
+
        Cloud configs are read with os-client-config
 
     :param cloud_name: the cloud name
@@ -39,6 +40,7 @@ def create_parser():
         help='attempt to do cleanup')
 
     return parser
+
 
 def select_resources(resources, substring):
     resources.select_instances_name_substring(substring)
@@ -76,19 +78,18 @@ if __name__ == '__main__':
                 if oldest is None or oldest > rec['created_on']:
                     oldest = rec['created_on']
                     new_search_prefix = rec['name']
-                print ('Found Old instance [{}] created on [{}]'
-                       ' age [{}]').format(
+                print('Found Old instance [{}] created on [{}]'
+                      ' age [{}]').format(
                     rec['name'], rec['created_on'], str(rec['age']))
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
             select_resources(resources, substring)
-
             cleanup = resources.get_selection()
+
     else:
         substring = args.substring or ''
         select_resources(resources, substring)
-
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:

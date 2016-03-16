@@ -1,8 +1,11 @@
-#!/usr/bin/env python
 
 
-class Resources:
-    """ Helper class to allow you to easily select a group of resources
+class NoCloudException(Exception):
+    pass
+
+
+class Resources(object):
+    """Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
     it stores id and name in a double dictionary with the first level
@@ -23,7 +26,7 @@ class Resources:
     def __init__(self, cloud):
         self._cloud = cloud
         if self._cloud is None:
-            raise Exception('No cloud provided')
+            raise NoCloudException('No cloud provided')
 
         self._selection = {}
 
@@ -40,9 +43,7 @@ class Resources:
             self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
-        """
-        Helper to add instances to the selection list
-        """
+        """Helper to add instances to the selection list"""
         data = {'created_on': instance.created}
         if age is not None:
             data['age'] = age
@@ -56,7 +57,7 @@ class Resources:
                         'floating_ip': fip.floating_ip_address,
                         })
 
-    def check_instance_blacklisted(self, instance):
+    def is_blacklisted(self, instance):
         """check to see if instance is blacklisted."""
         for entry in self.BLACKLIST:
             if entry in instance.name:
@@ -68,41 +69,35 @@ class Resources:
         return 'permanent' in instance.name
 
     def select_instances(self):
-        """
-        select all instances
+        """select all instances
 
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
             self._add_instance(instance)
 
     def select_instances_name_substring(self, search_substring):
-        """
-        will select related resources based on provided substring
+        """will select related resources based on provided substring
 
         Excludes blacklisted instances
         """
         for instance in self._cloud.list_servers():
-            if self.check_instance_blacklisted(instance):
+            if self.is_blacklisted(instance):
                 continue
             if search_substring in instance.name:
                 self._add_instance(instance)
 
     def select_networks(self):
-        """
-        Exlcude router:external routers
-        """
+        """Exlcude router:external routers"""
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
             self._add('nets', network['id'], network['name'])
 
     def select_networks_name_substring(self, search_substring):
-        """
-        Exlcude router:external routers
-        """
+        """Exlcude router:external routers"""
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
