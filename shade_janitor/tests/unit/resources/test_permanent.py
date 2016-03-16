@@ -3,6 +3,10 @@ from unittest import TestCase
 
 from shade_janitor.resources import Resources
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
 class TestPermanentResources(TestCase):
 
     def test_is_permanent_non_perm_instance(self):
