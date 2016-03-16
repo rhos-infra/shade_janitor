@@ -2,7 +2,7 @@
 
 
 class Resources:
-    """ Helper class to allow you to easily select a group of resources
+    """Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
     it stores id and name in a double dictionary with the first level
@@ -40,9 +40,7 @@ class Resources:
             self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
-        """
-        Helper to add instances to the selection list
-        """
+        """Helper to add instances to the selection list"""
         data = {'created_on': instance.created}
         if age is not None:
             data['age'] = age
@@ -68,8 +66,7 @@ class Resources:
         return 'permanent' in instance.name
 
     def select_instances(self):
-        """
-        select all instances
+        """select all instances
 
         Excludes blacklisted instances
         """
@@ -79,8 +76,7 @@ class Resources:
             self._add_instance(instance)
 
     def select_instances_name_substring(self, search_substring):
-        """
-        will select related resources based on provided substring
+        """will select related resources based on provided substring
 
         Excludes blacklisted instances
         """
@@ -91,18 +87,14 @@ class Resources:
                 self._add_instance(instance)
 
     def select_networks(self):
-        """
-        Exlcude router:external routers
-        """
+        """Exlcude router:external routers"""
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue
             self._add('nets', network['id'], network['name'])
 
     def select_networks_name_substring(self, search_substring):
-        """
-        Exlcude router:external routers
-        """
+        """Exlcude router:external routers"""
         for network in self._cloud.list_networks():
             if network['router:external']:
                 continue

@@ -9,7 +9,7 @@ from resources import Resources
 
 
 class SelectAgeRelatedResources(Resources):
-    """ Helper class to allow you to easily select a group of resources
+    """Helper class to allow you to easily select a group of resources
 
     this uses a shade openstack_cloud instance to query resources from
     it stores id and name in a double dictionary with the first level
@@ -28,8 +28,7 @@ class SelectAgeRelatedResources(Resources):
     def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
                              powered_off_ttl=timedelta(hours=1),
                              powered_on_permanent_ttl=timedelta(days=14)):
-        """
-        Check for old instances
+        """Check for old instances
 
         Excludes blacklisted instances
         """
