@@ -38,6 +38,9 @@ def create_parser():
     parser.add_argument(
         '--cleanup', dest='run_cleanup', action='store_true',
         help='attempt to do cleanup')
+    parser.add_argument(
+        '--debug', dest='debug', action='store_true',
+        help='turn on debug')
 
     return parser
 
@@ -50,6 +53,11 @@ def select_resources(resources, substring):
     resources.select_related_ports()
     resources.select_floatingips_unattached()
 
+
+def set_debug(debug_mode):
+    if debug_mode:
+        shade.simple_logging(debug=debug_mode)
+
 if __name__ == '__main__':
 
     parser = create_parser()
@@ -58,8 +66,7 @@ if __name__ == '__main__':
     pp = pprint.PrettyPrinter(indent=4)
     now = datetime.datetime.now(pytz.utc)
 
-    # Initialize and turn on debug logging
-    shade.simple_logging(debug=True)
+    set_debug(args.debug)
 
     cloud = initialize_cloud(args.cloud)
 
