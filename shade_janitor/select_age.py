@@ -28,9 +28,13 @@ class SelectAgeRelatedResources(Resources):
     def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
                              powered_off_ttl=timedelta(hours=1),
                              powered_on_permanent_ttl=timedelta(days=14)):
-        """Check for old instances
+        """Check for old instances.
 
-        Excludes blacklisted instances
+        Excludes blacklisted instances.
+
+        :param powered_on_ttl: life cycle for active resources
+        :param powered_off_ttl: life cycle for powered off resources
+        :param powered_on_permanent_ttl: life cycle of active and permanent
         """
         for instance in self._cloud.list_servers():
             if self.is_blacklisted(instance):

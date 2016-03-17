@@ -12,9 +12,9 @@ from select_age import SelectAgeRelatedResources
 
 
 def initialize_cloud(cloud_name):
-    """Initialize cloud object
+    """Initialize cloud object.
 
-       Cloud configs are read with os-client-config
+       Cloud configs are read with os-client-config.
 
     :param cloud_name: the cloud name
     """
@@ -26,6 +26,7 @@ def initialize_cloud(cloud_name):
 
 
 def create_parser():
+    """Create argument parser."""
     parser = argparse.ArgumentParser(
         description='Identify resources to be cleaned up.')
     parser.add_argument(
@@ -43,6 +44,11 @@ def create_parser():
 
 
 def select_resources(resources, substring):
+    """Select different type of resources.
+
+    :param resources: collection of resources
+    :param substring: part of resources name
+    """
     resources.select_instances_name_substring(substring)
     resources.select_networks_name_substring(substring)
     resources.select_subnets_name_substring(substring)
