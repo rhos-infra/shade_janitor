@@ -40,7 +40,6 @@ class TestCleanupFloatingIP(base.BaseTestCase):
     @mock.patch('shade_janitor.cleanup.show_cleanup')
     def test_cleanup_no_floatingIP_dry(self, mock_show_cleanup):
         cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
-        self.assertFalse(self.cloud.delete_floating_ip.called)
         self.assertFalse(mock_show_cleanup.called)
 
     def test_cleanup_floatingIP_multiple(self):
