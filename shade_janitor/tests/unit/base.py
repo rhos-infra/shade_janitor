@@ -8,4 +8,4 @@ class BaseTestCase(TestCase):
 
     def setUp(self):
         self.cloud = mock.Mock()
-        self.resources = Resources(mock.Mock())
+        self.resources = Resources(self.cloud)
