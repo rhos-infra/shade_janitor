@@ -1,19 +1,29 @@
 from mock import Mock
-from unittest import TestCase
 
-from shade_janitor.resources import Resources
+from shade_janitor.tests.unit import base
 
 
-class TestPermanentResources(TestCase):
+class TestPermanentResources(base.BaseTestCase):
+
+    def setUp(self):
+        super(TestPermanentResources, self).setUp()
+        self.instance = Mock()
 
     def test_is_permanent_non_perm_instance(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'abcde-rdo-ci-88-foo'
-        self.assertFalse(r.is_permanent(instance))
+        self.instance.name = 'abcde-rdo-ci-88-foo'
+        self.assertFalse(self.resources.is_permanent(self.instance))
 
     def test_is_permanent_perm_instance(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'permanent-rdo-ci-88-foo'
-        self.assertTrue(r.is_permanent(instance))
+        self.instance.name = 'permanent-rdo-ci-88-foo'
+        self.assertTrue(self.resources.is_permanent(self.instance))
+
+    def test_name_empty(self):
+        self.instance.name = ''
+        self.assertFalse(self.resources.is_permanent(self.instance))
+
+    def test_name_none(self):
+        self.instance.name = None
+        self.assertFalse(self.resources.is_permanent(self.instance))
+
+    def test_none(self):
+        self.assertFalse(self.resources.is_permanent(None))

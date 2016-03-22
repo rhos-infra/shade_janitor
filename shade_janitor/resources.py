@@ -61,14 +61,18 @@ class Resources(object):
 
     def is_blacklisted(self, instance):
         """Check if instance is blacklisted."""
-        for entry in self.BLACKLIST:
-            if entry in instance.name:
-                return True
+        if instance is not None and instance.name is not None:
+            for entry in self.BLACKLIST:
+                if entry in instance.name:
+                    return True
 
         return False
 
     def is_permanent(self, instance):
         """Check if instance is permanent."""
+        if instance is None or instance.name is None:
+            return False
+
         return 'permanent' in instance.name
 
     def select_instances(self):

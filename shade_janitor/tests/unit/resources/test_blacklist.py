@@ -1,37 +1,41 @@
 from mock import Mock
-from unittest import TestCase
 
-from shade_janitor.resources import Resources
+from shade_janitor.tests.unit import base
 
 
-class TestBlackList(TestCase):
+class TestBlackList(base.BaseTestCase):
+
+    def setUp(self):
+        super(TestBlackList, self).setUp()
+        self.instance = Mock()
 
     def test_blacklist_normal(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'abcde-rdo-ci-88-foo'
-        self.assertFalse(r.is_blacklisted(instance))
+        self.instance.name = 'abcde-rdo-ci-88-foo'
+        self.assertFalse(self.resources.is_blacklisted(self.instance))
 
     def test_blacklist_jenkins(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'jenkins-helper'
-        self.assertTrue(r.is_blacklisted(instance))
+        self.instance.name = 'jenkins-helper'
+        self.assertTrue(self.resources.is_blacklisted(self.instance))
 
     def test_blacklist_slave(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'private-slave'
-        self.assertTrue(r.is_blacklisted(instance))
+        self.instance.name = 'private-slave'
+        self.assertTrue(self.resources.is_blacklisted(self.instance))
 
     def test_blacklist_slave_2(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'slave-helper'
-        self.assertTrue(r.is_blacklisted(instance))
+        self.instance.name = 'slave-helper'
+        self.assertTrue(self.resources.is_blacklisted(self.instance))
 
     def test_blacklist_rpm_mirror(self):
-        r = Resources(Mock())
-        instance = Mock()
-        instance.name = 'rpm-mirror-01'
-        self.assertTrue(r.is_blacklisted(instance))
+        self.instance.name = 'rpm-mirror-01'
+        self.assertTrue(self.resources.is_blacklisted(self.instance))
+
+    def test_empty(self):
+        self.instance.name = ''
+        self.assertFalse(self.resources.is_blacklisted(self.instance))
+
+    def test_name_none(self):
+        self.instance.name = None
+        self.assertFalse(self.resources.is_blacklisted(self.instance))
+
+    def test_none(self):
+        self.assertFalse(self.resources.is_blacklisted(None))
