@@ -12,22 +12,22 @@ class TestCleanupFloatingIP(base.BaseTestCase):
         self.fip = mock.Mock()
         self.fip2 = mock.Mock()
 
-    def add_single_fip(self):
+    def add_single(self):
         self.resources._add_floatingip(self.fip)
 
-    def add_double_fip(self):
+    def add_double(self):
         self.resources._add_floatingip(self.fip2)
         self.resources._add_floatingip(self.fip)
 
     @mock.patch('shade_janitor.cleanup.show_cleanup')
     def test_dry_cleanup_floatingIP(self, mock_show_cleanup):
-        self.add_single_fip()
+        self.add_single()
         cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
         self.assertFalse(self.cloud.delete_floating_ip.called)
         self.assertTrue(mock_show_cleanup.called)
 
     def test_cleanup_floatingIP(self):
-        self.add_single_fip()
+        self.add_single()
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_run=False)
         self.assertTrue(self.cloud.delete_floating_ip.called)
@@ -43,7 +43,7 @@ class TestCleanupFloatingIP(base.BaseTestCase):
         self.assertFalse(mock_show_cleanup.called)
 
     def test_cleanup_floatingIP_multiple(self):
-        self.add_double_fip()
+        self.add_double()
 
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_run=False)
@@ -51,9 +51,27 @@ class TestCleanupFloatingIP(base.BaseTestCase):
         self.assertEqual(2, self.cloud.delete_floating_ip.call_count)
 
     def test_cleanup_floatingIP_multiple_dry_run(self):
-        self.add_double_fip()
+        self.add_double()
 
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_run=True)
 
         self.assertFalse(self.cloud.delete_floating_ip.called)
+
+    @mock.patch('shade_janitor.cleanup.dry_cleanup_floating_ips')
+    def test_dry_cleanup_floatingIP_micro(self, mock_floatingIP_cleanup):
+        self.add_single()
+        cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
+        self.assertTrue(mock_floatingIP_cleanup.called)
+
+    @mock.patch('shade_janitor.cleanup.cleanup_floating_ips')
+    def test_cleanup_floatingIP_micro(self, mock_floatingIP_cleanup):
+        self.add_single()
+        cleanup.cleanup_resources(
+            self.cloud, self.resources.get_selection(), dry_run=False)
+        self.assertTrue(mock_floatingIP_cleanup.called)
+
+    @mock.patch('shade_janitor.cleanup.dry_cleanup_floating_ips')
+    def test_cleanup_no_floatingIP_micro(self, mock_floatingIP_cleanup):
+        cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
+        self.assertFalse(mock_floatingIP_cleanup.called)

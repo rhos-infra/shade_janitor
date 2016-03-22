@@ -56,3 +56,22 @@ class TestCleanupPort(base.BaseTestCase):
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_run=False)
         self.assertEqual(2, mock_ports_cleanup.call_count)
+
+    @mock.patch('shade_janitor.cleanup.dry_cleanup_ports')
+    def test_dry_cleanup_port_micro(self, mock_ports_cleanup):
+        self.add_single()
+        cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
+        self.assertTrue(mock_ports_cleanup.called)
+
+    @mock.patch('shade_janitor.cleanup.cleanup_ports')
+    def test_cleanup_port_micro(self, mock_ports_cleanup):
+        dry_cleanup = False
+        self.add_single()
+        cleanup.cleanup_resources(
+            self.cloud, self.resources.get_selection(), dry_cleanup)
+        self.assertTrue(mock_ports_cleanup.called)
+
+    @mock.patch('shade_janitor.cleanup.dry_cleanup_ports')
+    def test_cleanup_no_port_micro(self, mock_ports_cleanup):
+        cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
+        self.assertFalse(mock_ports_cleanup.called)
