@@ -84,10 +84,11 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
     :param resource_selection: selected resources intended for a cleanup.
     :param dry_run: indicates if a real cleanup will run or a simulation.
     """
-    if 'instances' in resource_selection:
-        if dry_run:
+    if dry_run:
+        if 'instances' in resource_selection:
             dry_cleanup_instances(resource_selection['instances'])
-        else:
+    else:
+        if 'instances' in resource_selection:
             cleanup_instances(cloud, resource_selection['instances'])
 
     if 'router_interfaces' in resource_selection:
@@ -110,35 +111,26 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
                     for router in cloud.search_routers(r_uuid):
                         cloud.remove_router_interface(router, uuid)
 
-    if 'ports' in resource_selection:
-        if dry_run:
-            dry_cleanup_ports(resource_selection['ports'])
-        else:
-            cleanup_ports(cloud, resource_selection['ports'])
-
-    if 'subnets' in resource_selection:
-        if dry_run:
-            dry_cleanup_subnets(resource_selection['subnets'])
-        else:
-            cleanup_subnets(cloud, resource_selection['subnets'])
-
-    if 'nets' in resource_selection:
-        if dry_run:
-            dry_cleanup_networks(resource_selection['nets'])
-        else:
-            cleanup_networks(cloud, resource_selection['nets'])
-
-    if 'routers' in resource_selection:
-        if dry_run:
-            dry_cleanup_routers(resource_selection['routers'])
-        else:
-            cleanup_routers(cloud, resource_selection['routers'])
-
-    if 'fips' in resource_selection:
-        if dry_run:
-            dry_cleanup_floating_ips(resource_selection['fips'])
-        else:
-            cleanup_floating_ips(cloud, resource_selection['fips'])
-
     if dry_run:
+        if 'ports' in resource_selection:
+            dry_cleanup_ports(resource_selection['ports'])
+        if 'subnets' in resource_selection:
+            dry_cleanup_subnets(resource_selection['subnets'])
+        if 'nets' in resource_selection:
+            dry_cleanup_networks(resource_selection['nets'])
+        if 'routers' in resource_selection:
+            dry_cleanup_routers(resource_selection['routers'])
+        if 'fips' in resource_selection:
+            dry_cleanup_floating_ips(resource_selection['fips'])
         print("Nothing cleaned up!")
+    else:
+        if 'ports' in resource_selection:
+            cleanup_ports(cloud, resource_selection['ports'])
+        if 'subnets' in resource_selection:
+            cleanup_subnets(cloud, resource_selection['subnets'])
+        if 'nets' in resource_selection:
+            cleanup_networks(cloud, resource_selection['nets'])
+        if 'routers' in resource_selection:
+            cleanup_routers(cloud, resource_selection['routers'])
+        if 'fips' in resource_selection:
+            cleanup_floating_ips(cloud, resource_selection['fips'])
