@@ -35,14 +35,14 @@ class TestCleanupSubnet(base.BaseTestCase):
 
     @mock.patch('shade_janitor.cleanup.dry_cleanup_subnets')
     def test_dry_cleanup_subnet_micro(self, mock_subnets_cleanup):
-        self.resources._add('subnets', self.subnet.id, self.subnet.name)
+        self.add_single()
         cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
         self.assertTrue(mock_subnets_cleanup.called)
 
     @mock.patch('shade_janitor.cleanup.cleanup_subnets')
     def test_cleanup_subnet_micro(self, mock_subnets_cleanup):
         dry_cleanup = False
-        self.resources._add('subnets', self.subnet.id, self.subnet.name)
+        self.add_single()
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_cleanup)
         self.assertTrue(mock_subnets_cleanup.called)

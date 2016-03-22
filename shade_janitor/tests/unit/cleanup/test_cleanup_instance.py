@@ -38,14 +38,14 @@ class TestCleanupInstance(base.BaseTestCase):
 
     @mock.patch('shade_janitor.cleanup.dry_cleanup_instances')
     def test_dry_cleanup_instance_micro(self, mock_instances_cleanup):
-        self.resources._add_instance(self.instance)
+        self.add_single()
         cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
         self.assertTrue(mock_instances_cleanup.called)
 
     @mock.patch('shade_janitor.cleanup.cleanup_instances')
     def test_cleanup_instance_micro(self, mock_instances_cleanup):
         dry_cleanup = False
-        self.resources._add_instance(self.instance)
+        self.add_single()
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_cleanup)
         self.assertTrue(mock_instances_cleanup.called)

@@ -35,14 +35,14 @@ class TestCleanupRouter(base.BaseTestCase):
 
     @mock.patch('shade_janitor.cleanup.dry_cleanup_routers')
     def test_dry_cleanup_router_micro(self, mock_routers_cleanup):
-        self.resources._add('routers', self.router.id, self.router.name)
+        self.add_single()
         cleanup.cleanup_resources(self.cloud, self.resources.get_selection())
         self.assertTrue(mock_routers_cleanup.called)
 
     @mock.patch('shade_janitor.cleanup.cleanup_routers')
     def test_cleanup_router_micro(self, mock_routers_cleanup):
         dry_cleanup = False
-        self.resources._add('routers', self.router.id, self.router.name)
+        self.add_single()
         cleanup.cleanup_resources(
             self.cloud, self.resources.get_selection(), dry_cleanup)
         self.assertTrue(mock_routers_cleanup.called)
