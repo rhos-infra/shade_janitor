@@ -5,13 +5,90 @@ def show_cleanup(cleanup_cmd):
     print(cleanup_cmd)
 
 
+def cleanup_instances(cloud, instances):
+    """Cleanup instances."""
+    for uuid in instances:
+        cloud.delete_server(uuid, wait=True, delete_ips=True)
+
+
+def dry_cleanup_instances(instances):
+    """Dry cleanup of instances."""
+    for uuid in instances:
+        show_cleanup('nova delete {}'.format(uuid))
+
+
+def cleanup_ports(cloud, ports):
+    """Cleanup ports."""
+    for uuid in ports:
+        cloud.delete_port(uuid)
+
+
+def dry_cleanup_ports(ports):
+    """Dry cleanup of ports."""
+    for uuid in ports:
+        show_cleanup('neutron port-delete {}'.format(uuid))
+
+
+def cleanup_subnets(cloud, subnets):
+    """Cleanup subnets."""
+    for uuid in subnets:
+        cloud.delete_subnet(uuid)
+
+
+def dry_cleanup_subnets(subnets):
+    """Dry cleanup of subnets."""
+    for uuid in subnets:
+        show_cleanup('neutron subnet-delete {}'.format(uuid))
+
+
+def cleanup_networks(cloud, networks):
+    """Cleanup networks."""
+    for uuid in networks:
+        cloud.delete_network(uuid)
+
+
+def dry_cleanup_networks(networks):
+    """Dry cleanup of networks."""
+    for uuid in networks:
+        show_cleanup('neutron net-delete {}'.format(uuid))
+
+
+def cleanup_routers(cloud, routers):
+    """Cleanup routers."""
+    for uuid in routers:
+        cloud.delete_router(uuid)
+
+
+def dry_cleanup_routers(routers):
+    """Dry cleanup of routers."""
+    for uuid in routers:
+        show_cleanup('neutron router-delete {}'.format(uuid))
+
+
+def cleanup_floating_ips(cloud, floating_ips):
+    """Cleanup floating IPs."""
+    for uuid in floating_ips:
+        cloud.delete_floating_ip(uuid)
+
+
+def dry_cleanup_floating_ips(floating_ips):
+    """Dry cleanup of floating IPs."""
+    for uuid in floating_ips:
+        show_cleanup('neutron floatingip-delete {}'.format(uuid))
+
+
 def cleanup_resources(cloud, resource_selection, dry_run=True):
+    """Cleanup resources
+
+    :param cloud: the cloud object.
+    :param resource_selection: selected resources intended for a cleanup.
+    :param dry_run: indicates if a real cleanup will run or a simulation.
+    """
     if 'instances' in resource_selection:
-        for uuid in resource_selection['instances']:
-            if dry_run:
-                show_cleanup('nova delete {}'.format(uuid))
-            else:
-                cloud.delete_server(uuid, wait=True, delete_ips=True)
+        if dry_run:
+            dry_cleanup_instances(resource_selection['instances'])
+        else:
+            cleanup_instances(cloud, resource_selection['instances'])
 
     if 'router_interfaces' in resource_selection:
         router_ids = []
@@ -34,36 +111,34 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
                         cloud.remove_router_interface(router, uuid)
 
     if 'ports' in resource_selection:
-        for uuid in resource_selection['ports']:
-            if dry_run:
-                show_cleanup('neutron port-delete {}'.format(uuid))
-            else:
-                cloud.delete_port(uuid)
+        if dry_run:
+            dry_cleanup_ports(resource_selection['ports'])
+        else:
+            cleanup_ports(cloud, resource_selection['ports'])
 
     if 'subnets' in resource_selection:
-        for uuid in resource_selection['subnets']:
-            if dry_run:
-                show_cleanup('neutron subnet-delete {}'.format(uuid))
-            else:
-                cloud.delete_subnet(uuid)
+        if dry_run:
+            dry_cleanup_subnets(resource_selection['subnets'])
+        else:
+            cleanup_subnets(cloud, resource_selection['subnets'])
 
     if 'nets' in resource_selection:
-        for uuid in resource_selection['nets']:
-            if dry_run:
-                show_cleanup('neutron net-delete {}'.format(uuid))
-            else:
-                cloud.delete_network(uuid)
+        if dry_run:
+            dry_cleanup_networks(resource_selection['nets'])
+        else:
+            cleanup_networks(cloud, resource_selection['nets'])
 
     if 'routers' in resource_selection:
-        for uuid in resource_selection['routers']:
-            if dry_run:
-                show_cleanup('neutron router-delete {}'.format(uuid))
-            else:
-                cloud.delete_router(uuid)
+        if dry_run:
+            dry_cleanup_routers(resource_selection['routers'])
+        else:
+            cleanup_routers(cloud, resource_selection['routers'])
 
     if 'fips' in resource_selection:
-        for uuid in resource_selection['fips']:
-            if dry_run:
-                show_cleanup('neutron floatingip-delete {}'.format(uuid))
-            else:
-                cloud.delete_floating_ip(uuid)
+        if dry_run:
+            dry_cleanup_floating_ips(resource_selection['fips'])
+        else:
+            cleanup_floating_ips(cloud, resource_selection['fips'])
+
+    if dry_run:
+        print("Nothing cleaned up!")
