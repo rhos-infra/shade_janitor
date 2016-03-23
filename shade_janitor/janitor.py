@@ -53,11 +53,15 @@ def select_resources(resources, substring):
     :param substring: part of resources name
     """
     resources.select_instances_name_substring(substring)
-    resources.select_networks_name_substring(substring)
-    resources.select_subnets_name_substring(substring)
-    resources.select_routers_name_substring(substring)
-    resources.select_related_ports()
-    resources.select_floatingips_unattached()
+    try:
+        resources.select_networks_name_substring(substring)
+        resources.select_subnets_name_substring(substring)
+        resources.select_routers_name_substring(substring)
+        resources.select_related_ports()
+        resources.select_floatingips_unattached()
+    except shade.exc.OpenStackCloudException:
+        # We don't care as this is the case for QEOS4 lab
+        pass
 
 
 def set_debug(debug_mode):
