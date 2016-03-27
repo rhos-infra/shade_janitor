@@ -17,6 +17,18 @@ def dry_cleanup_instances(instances):
         show_cleanup('nova delete {}'.format(uuid))
 
 
+def cleanup_stacks(cloud, stacks):
+    """Cleanup stacks."""
+    for uuid in stacks:
+        cloud.delete_stack(uuid)
+
+
+def dry_cleanup_stacks(stacks):
+    """Dry cleanup of stacks."""
+    for uuid in stacks:
+        show_cleanup('heat stack-delete {}'.format(uuid))
+
+
 def cleanup_ports(cloud, ports):
     """Cleanup ports."""
     for uuid in ports:
@@ -112,6 +124,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
                         cloud.remove_router_interface(router, uuid)
 
     if dry_run:
+        if 'stacks' in resource_selection:
+            dry_cleanup_stacks(resource_selection['stacks'])
         if 'ports' in resource_selection:
             dry_cleanup_ports(resource_selection['ports'])
         if 'subnets' in resource_selection:
@@ -124,6 +138,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             dry_cleanup_floating_ips(resource_selection['fips'])
         print("Nothing cleaned up!")
     else:
+        if 'stacks' in resource_selection:
+            cleanup_stacks(cloud, resource_selection['stacks'])
         if 'ports' in resource_selection:
             cleanup_ports(cloud, resource_selection['ports'])
         if 'subnets' in resource_selection:
