@@ -1,3 +1,4 @@
+import shade
 
 
 class NoCloudException(Exception):
@@ -182,6 +183,23 @@ class Resources(object):
                 self._add('router_interfaces', port['id'],
                           data={'subnet_ids': subnet_ids,
                                 'network_id': network_id})
+
+    def select_resources(self, substring):
+        """Select different type of resources.
+
+        :param resources: collection of resources
+        :param substring: part of resources name
+        """
+        self.select_instances_name_substring(substring)
+        try:
+            self.select_networks_name_substring(substring)
+            self.select_subnets_name_substring(substring)
+            self.select_routers_name_substring(substring)
+            self.select_related_ports()
+            self.select_floatingips_unattached()
+        except shade.exc.OpenStackCloudException:
+            # We don't care as this is the case for QEOS4 lab
+            pass
 
     def get_selection(self):
         """Returns selected resources."""
