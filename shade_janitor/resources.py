@@ -111,6 +111,17 @@ class Resources(object):
             if search_substring in network['name']:
                 self._add('nets', network['id'], network['name'])
 
+    def select_stacks(self):
+        """Select stacks."""
+        for stack in self._cloud.list_stacks():
+            self._add('stacks', stack['id'], stack['name'])
+
+    def select_stacks_name_substring(self, search_substring):
+        """Select stacks based on substring."""
+        for stack in self._cloud.list_stacks():
+            if search_substring in stack['name']:
+                self._add('stacks', stack['id'], stack['name'])
+
     def select_subnets(self):
         """Select routers."""
         for subnet in self._cloud.list_subnets():
