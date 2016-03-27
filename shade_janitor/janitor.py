@@ -46,24 +46,6 @@ def create_parser():
     return parser
 
 
-def select_resources(resources, substring):
-    """Select different type of resources.
-
-    :param resources: collection of resources
-    :param substring: part of resources name
-    """
-    resources.select_instances_name_substring(substring)
-    try:
-        resources.select_networks_name_substring(substring)
-        resources.select_subnets_name_substring(substring)
-        resources.select_routers_name_substring(substring)
-        resources.select_related_ports()
-        resources.select_floatingips_unattached()
-    except shade.exc.OpenStackCloudException:
-        # We don't care as this is the case for QEOS4 lab
-        pass
-
-
 def set_debug(debug_mode):
     if debug_mode:
         shade.simple_logging(debug=debug_mode)
@@ -101,12 +83,12 @@ if __name__ == '__main__':
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
-            select_resources(resources, substring)
+            resources.select_resources(substring)
             cleanup = resources.get_selection()
 
     else:
         substring = args.substring or ''
-        select_resources(resources, substring)
+        resources.select_resources(substring)
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:
