@@ -20,7 +20,7 @@ def initialize_cloud(cloud_name):
     """
 
     if not cloud_name:
-        raise Exception('No cloud provided')
+        return shade.openstack_cloud()
     else:
         return shade.openstack_cloud(cloud=cloud_name)
 
