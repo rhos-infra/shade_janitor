@@ -43,6 +43,9 @@ def create_parser():
     parser.add_argument(
         '--debug', dest='debug', action='store_true',
         help='turn on debug')
+    parser.add_argument(
+        '--unused', dest='unused', action='store_true',
+        help='select unused resources')
 
     return parser
 
@@ -90,6 +93,43 @@ if __name__ == '__main__':
     else:
         substring = args.substring or ''
         resources.select_resources(substring)
+        cleanup = resources.get_selection()
+
+    if args.unused:
+        exclude_list = set(['public', 'provision'])
+        dead_list = set()
+
+        # TODO: identify better way to get unique substring from an instance
+        if 'instances' in cleanup:
+            for key in cleanup['instances']:
+                exclude_list.add(cleanup['instances'][key]['name'][0:15])
+
+        for type_key in cleanup:
+            for key in cleanup[type_key]:
+                entry = cleanup[type_key][key]
+                if 'name' in entry:
+                    name = entry['name']
+
+                    skip_it = False
+                    for rec in exclude_list:
+                        if rec in name:
+                            skip_it = True
+                            break
+
+                    if skip_it:
+                        continue
+
+                    # TODO: Special case in here for rhos- naming
+                    if 'rhos-' == name[0:5]:
+                        name = name[5:]
+
+                    substr = name[0:15]
+                    if substr not in exclude_list:
+                        dead_list.add(substr)
+
+        resources = Resources(cloud)
+        for substr in dead_list:
+            resources.select_resources(substr)
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:
