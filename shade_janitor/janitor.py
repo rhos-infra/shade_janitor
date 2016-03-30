@@ -95,12 +95,6 @@ if __name__ == '__main__':
             substring = new_search_prefix[0:15]
             resources.select_resources(substring)
             cleanup = resources.get_selection()
-
-    else:
-        substring = args.substring or ''
-        resources.select_resources(substring)
-        cleanup = resources.get_selection()
-
     if args.unused:
         exclude_list = set(['public', 'provision'])
         dead_list = set()
@@ -133,9 +127,13 @@ if __name__ == '__main__':
                     if substr not in exclude_list:
                         dead_list.add(substr)
 
-        resources = Resources(cloud)
         for substr in dead_list:
             resources.select_resources(substr)
+        cleanup = resources.get_selection()
+
+    if not args.old_instances and not args.unused:
+        substring = args.substring or ''
+        resources.select_resources(substring)
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:
