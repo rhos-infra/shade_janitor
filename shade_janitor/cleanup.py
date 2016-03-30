@@ -1,91 +1,109 @@
 #!/usr/bin/env python
 
+import logging
+
+from summary import Summary
+
 
 def show_cleanup(cleanup_cmd):
-    print(cleanup_cmd)
+    logging.debug(cleanup_cmd)
 
 
 def cleanup_instances(cloud, instances):
     """Cleanup instances."""
     for uuid in instances:
+        Summary.num_of_instances += 1
         cloud.delete_server(uuid, wait=True, delete_ips=True)
 
 
 def dry_cleanup_instances(instances):
     """Dry cleanup of instances."""
     for uuid in instances:
+        Summary.num_of_instances += 1
         show_cleanup('nova delete {}'.format(uuid))
 
 
 def cleanup_stacks(cloud, stacks):
     """Cleanup stacks."""
     for uuid in stacks:
+        Summary.num_of_stacks += 1
         cloud.delete_stack(uuid)
 
 
 def dry_cleanup_stacks(stacks):
     """Dry cleanup of stacks."""
     for uuid in stacks:
+        Summary.num_of_stacks += 1
         show_cleanup('heat stack-delete {}'.format(uuid))
 
 
 def cleanup_ports(cloud, ports):
     """Cleanup ports."""
     for uuid in ports:
+        Summary.num_of_ports += 1
         cloud.delete_port(uuid)
 
 
 def dry_cleanup_ports(ports):
     """Dry cleanup of ports."""
     for uuid in ports:
+        Summary.num_of_ports += 1
         show_cleanup('neutron port-delete {}'.format(uuid))
 
 
 def cleanup_subnets(cloud, subnets):
     """Cleanup subnets."""
     for uuid in subnets:
+        Summary.num_of_subnets += 1
         cloud.delete_subnet(uuid)
 
 
 def dry_cleanup_subnets(subnets):
     """Dry cleanup of subnets."""
     for uuid in subnets:
+        Summary.num_of_subnets += 1
         show_cleanup('neutron subnet-delete {}'.format(uuid))
 
 
 def cleanup_networks(cloud, networks):
     """Cleanup networks."""
     for uuid in networks:
+        Summary.num_of_networks += 1
         cloud.delete_network(uuid)
 
 
 def dry_cleanup_networks(networks):
     """Dry cleanup of networks."""
     for uuid in networks:
+        Summary.num_of_networks += 1
         show_cleanup('neutron net-delete {}'.format(uuid))
 
 
 def cleanup_routers(cloud, routers):
     """Cleanup routers."""
     for uuid in routers:
+        Summary.num_of_routers += 1
         cloud.delete_router(uuid)
 
 
 def dry_cleanup_routers(routers):
     """Dry cleanup of routers."""
     for uuid in routers:
+        Summary.num_of_routers += 1
         show_cleanup('neutron router-delete {}'.format(uuid))
 
 
 def cleanup_floating_ips(cloud, floating_ips):
     """Cleanup floating IPs."""
     for uuid in floating_ips:
+        Summary.num_of_floating_ips += 1
         cloud.delete_floating_ip(uuid)
 
 
 def dry_cleanup_floating_ips(floating_ips):
     """Dry cleanup of floating IPs."""
     for uuid in floating_ips:
+        Summary.num_of_floating_ips += 1
         show_cleanup('neutron floatingip-delete {}'.format(uuid))
 
 
