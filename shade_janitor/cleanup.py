@@ -6,7 +6,7 @@ from summary import Summary
 
 
 def show_cleanup(cleanup_cmd):
-    logging.debug(cleanup_cmd)
+    logging.info(cleanup_cmd)
 
 
 def cleanup_instances(cloud, instances):
@@ -154,7 +154,7 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             dry_cleanup_routers(resource_selection['routers'])
         if 'fips' in resource_selection:
             dry_cleanup_floating_ips(resource_selection['fips'])
-        print("Nothing cleaned up!")
+        logging.info("Nothing cleaned up!")
     else:
         if 'stacks' in resource_selection:
             cleanup_stacks(cloud, resource_selection['stacks'])

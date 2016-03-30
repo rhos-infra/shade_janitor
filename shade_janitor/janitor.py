@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import logging
 import pprint
 import pytz
 import shade
@@ -50,9 +51,14 @@ def create_parser():
     return parser
 
 
-def set_debug(debug_mode):
+def set_logging(debug_mode):
     if debug_mode:
+        log_format = "%(asctime)-15s %(message)s"
+        logging.basicConfig(format=log_format, level=logging.DEBUG)
         shade.simple_logging(debug=debug_mode)
+    else:
+        log_format = "%(message)s"
+        logging.basicConfig(format=log_format, level=logging.INFO)
 
 if __name__ == '__main__':
 
@@ -62,7 +68,7 @@ if __name__ == '__main__':
     pp = pprint.PrettyPrinter(indent=4)
     now = datetime.datetime.now(pytz.utc)
 
-    set_debug(args.debug)
+    set_logging(args.debug)
 
     cloud = initialize_cloud(args.cloud)
 
@@ -81,9 +87,9 @@ if __name__ == '__main__':
                 if oldest is None or oldest > rec['created_on']:
                     oldest = rec['created_on']
                     new_search_prefix = rec['name']
-                print(('Found Old instance [{}] created on [{}]'
-                      ' age [{}]').format(
-                    rec['name'], rec['created_on'], str(rec['age'])))
+                logging.info('Found Old instance [{}] created on [{}]'
+                             ' age [{}]').format(
+                    rec['name'], rec['created_on'], str(rec['age']))
 
         if oldest is not None:
             substring = new_search_prefix[0:15]
