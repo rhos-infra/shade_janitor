@@ -40,7 +40,7 @@ class Resources(object):
             if name is not None:
                 entry['name'] = name
             if data is not None:
-                for key in data.keys():
+                for key in list(data.keys()):
                     entry[key] = data[key]
             self._selection[resource_type][uuid] = entry
 
@@ -164,7 +164,7 @@ class Resources(object):
             pick_it = False
 
             router_interface = False
-            if port['device_owner'] == u'network:router_interface':
+            if port['device_owner'] == 'network:router_interface':
                 router_interface = True
 
             subnet_ids = []
