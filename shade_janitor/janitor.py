@@ -96,6 +96,11 @@ if __name__ == '__main__':
             resources.select_resources(substring)
             cleanup = resources.get_selection()
     if args.unused:
+
+        resources.select_resources('')
+        cleanup = resources.get_selection()
+        resources = Resources(cloud)
+
         exclude_list = set(['public', 'provision'])
         dead_list = set()
 
