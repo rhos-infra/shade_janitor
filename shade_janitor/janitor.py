@@ -76,9 +76,8 @@ if __name__ == '__main__':
     cleanup = {}
 
     if args.old_instances:
-        age_resources = SelectAgeRelatedResources(cloud)
-        age_resources.select_old_instances()
-        old_resources = age_resources.get_selection()
+        resources.select_old_instances()
+        old_resources = resources.get_selection()
         new_search_prefix = None
         oldest = None
         if 'instances' in old_resources:

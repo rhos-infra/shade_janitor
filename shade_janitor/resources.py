@@ -1,3 +1,7 @@
+from datetime import datetime
+from datetime import timedelta
+import dateutil.parser
+import pytz
 import shade
 
 
@@ -211,6 +215,32 @@ class Resources(object):
         except shade.exc.OpenStackCloudException:
             # We don't care as this is the case for QEOS4 lab
             pass
+
+    def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
+                             powered_off_ttl=timedelta(hours=1),
+                             powered_on_permanent_ttl=timedelta(days=14)):
+        """Select old aged instances by parameters provided to the method
+           or the default values.
+
+           :param powered_on_ttl: life cycle for active resources
+           :param powered_off_ttl: life cycle for powered off resources
+           :param powered_on_permanent_ttl: life cycle of active and permanent
+        """
+        for instance in self._cloud.list_servers():
+            if self.is_blacklisted(instance):
+                continue
+
+            created_on = dateutil.parser.parse(instance.created)
+            now = datetime.now(pytz.utc)
+            age = now - created_on
+            if self.is_permanent(instance):
+                if age > powered_on_permanent_ttl:
+                    self._add_instance(instance, age=age)
+            elif instance['OS-EXT-STS:power_state'] == 0:
+                if age > powered_off_ttl:
+                    self._add_instance(instance, age=age)
+            elif age > powered_on_ttl:
+                self._add_instance(instance, age=age)
 
     def get_selection(self):
         """Returns selected resources."""
