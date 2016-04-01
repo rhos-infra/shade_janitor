@@ -99,8 +99,8 @@ if __name__ == '__main__':
 
         resources.select_resources('')
         cleanup = resources.get_selection()
-        resources = Resources(cloud)
 
+        print "attempting cleanup of unused network resources"
         exclude_list = set(['public', 'provision'])
         dead_list = set()
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         if 'instances' in cleanup:
             for key in cleanup['instances']:
                 exclude_list.add(cleanup['instances'][key]['name'][0:15])
-
+        print "exclude list {}".format(str(exclude_list))
         for type_key in cleanup:
             for key in cleanup[type_key]:
                 entry = cleanup[type_key][key]
@@ -133,8 +133,12 @@ if __name__ == '__main__':
                         dead_list.add(substr)
 
         for substr in dead_list:
+            print substr
+            resources = Resources(cloud)
             resources.select_resources(substr)
-        cleanup = resources.get_selection()
+            cleanup = resources.get_selection()
+            if args.run_cleanup:
+                cleanup_resources(cloud, cleanup, dry_run=False)
 
     if not args.old_instances and not args.unused:
         substring = args.substring or ''
