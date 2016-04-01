@@ -84,6 +84,8 @@ if __name__ == '__main__':
         if 'instances' in old_resources:
             for instance in old_resources['instances']:
                 rec = old_resources['instances'][instance]
+                if rec is None:
+                    continue
                 if oldest is None or oldest > rec['created_on']:
                     oldest = rec['created_on']
                     new_search_prefix = rec['name']
