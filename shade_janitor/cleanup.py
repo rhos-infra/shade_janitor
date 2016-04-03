@@ -154,7 +154,6 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             dry_cleanup_routers(resource_selection['routers'])
         if 'fips' in resource_selection:
             dry_cleanup_floating_ips(resource_selection['fips'])
-        logging.info("Nothing cleaned up!")
     else:
         if 'stacks' in resource_selection:
             cleanup_stacks(cloud, resource_selection['stacks'])
