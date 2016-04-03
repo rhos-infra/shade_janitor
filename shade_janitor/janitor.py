@@ -221,3 +221,5 @@ if __name__ == '__main__':
             cleanup_resources(cloud, cleanup, dry_run=False)
 
     Summary.print_summary()
+    if not args.run_cleanup:
+        logging.info("Nothing cleaned up. To cleanup resources, please use --cleanup")
