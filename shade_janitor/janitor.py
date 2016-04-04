@@ -133,14 +133,27 @@ if __name__ == '__main__':
                     substr = name[0:15]
                     if substr not in exclude_list:
                         dead_list.add(substr)
+        logging.info('identified possible unused {}'.format(dead_list))
 
         for substr in dead_list:
-            logging.debug('cleaning up {}'.format(substr))
+            logging.info('cleaning up {}'.format(substr))
             resources = Resources(cloud)
             resources.select_resources(substr)
             cleanup = resources.get_selection()
+            if 'instances' in cleanup and len(cleanup['instances']) > 0:
+                logging.info('skipping as instances are live on here')
+                continue
+            if 'fips' in cleanup and len(cleanup['fips']) > 0:
+                logging.info('skipping as there are floating ips live on here')
+                continue
             if args.run_cleanup:
-                cleanup_resources(cloud, cleanup, dry_run=False)
+                try:
+                    cleanup_resources(cloud, cleanup, dry_run=False)
+                except shade.exc.OpenStackCloudException as e:
+                    logging.error(
+                        'We had a problem trying to clean up [{}]'
+                        .format(substr))
+                    logging.error(e)
 
     if not args.old_instances and not args.unused:
         substring = args.substring or ''
