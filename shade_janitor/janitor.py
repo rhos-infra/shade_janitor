@@ -102,15 +102,15 @@ if __name__ == '__main__':
         resources.select_resources('')
         cleanup = resources.get_selection()
 
-        print "attempting cleanup of unused network resources"
+        logging.info('attempting cleanup of unused network resources')
         exclude_list = set(['public', 'provision'])
         dead_list = set()
 
-        # TODO: identify better way to get unique substring from an instance
+        # TODO(jmls): identify better way to get unique substring
         if 'instances' in cleanup:
             for key in cleanup['instances']:
                 exclude_list.add(cleanup['instances'][key]['name'][0:15])
-        print "exclude list {}".format(str(exclude_list))
+        logging.debug("exclude list {}".format(str(exclude_list)))
         for type_key in cleanup:
             for key in cleanup[type_key]:
                 entry = cleanup[type_key][key]
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                     if skip_it:
                         continue
 
-                    # TODO: Special case in here for rhos- naming
+                    # TODO(jmls): Special case in here for rhos- naming
                     if 'rhos-' == name[0:5]:
                         name = name[5:]
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
                         dead_list.add(substr)
 
         for substr in dead_list:
-            print substr
+            logging.debug('cleaning up {}'.format(substr))
             resources = Resources(cloud)
             resources.select_resources(substr)
             cleanup = resources.get_selection()
