@@ -33,23 +33,25 @@ class Resources(object):
 
     def _add(self, resource_type, uuid, name=None, data=None):
         """Add resource to selection list."""
-        if resource_type not in self._selection:
-            self._selection[resource_type] = {}
-        if uuid not in self._selection[resource_type]:
-            entry = {'id': uuid}
-            if name is not None:
-                entry['name'] = name
-            if data is not None:
-                for key in list(data.keys()):
-                    entry[key] = data[key]
-            self._selection[resource_type][uuid] = entry
+        if uuid is not None:
+            if resource_type not in self._selection:
+                self._selection[resource_type] = {}
+            if uuid not in self._selection[resource_type]:
+                entry = {'id': uuid}
+                if name is not None:
+                    entry['name'] = name
+                if data is not None:
+                    for key in list(data.keys()):
+                        entry[key] = data[key]
+                self._selection[resource_type][uuid] = entry
 
     def _add_instance(self, instance, age=None):
         """Add instance to the selection list"""
-        data = {'created_on': instance.created}
-        if age is not None:
-            data['age'] = age
-        self._add('instances', instance.id, instance.name, data=data)
+        if instance is not None:
+            data = {'created_on': instance.created}
+            if age is not None:
+                data['age'] = age
+            self._add('instances', instance.id, instance.name, data=data)
 
     def _add_floatingip(self, fip):
         """Add floating ip to the selection list"""
