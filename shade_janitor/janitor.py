@@ -75,22 +75,10 @@ def set_logging(debug_mode):
         log_format = "%(message)s"
         logging.basicConfig(format=log_format, level=logging.INFO)
 
-if __name__ == '__main__':
 
-    parser = create_parser()
-    args = parser.parse_args()
-
-    pp = pprint.PrettyPrinter(indent=4)
-    now = datetime.datetime.now(pytz.utc)
-
-    set_logging(args.debug)
-
-    cloud = initialize_cloud(args.cloud)
-
-    resources = Resources(cloud)
-    cleanup = {}
-
-    if args.old_instances:
+def select_oldest(cloud):
+    if cloud:
+        resources = Resources(cloud)
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances(
             datetime.timedelta(hours=args.old_active),
@@ -116,9 +104,31 @@ if __name__ == '__main__':
         if oldest is not None:
             substring = new_search_prefix[0:15]
             resources.select_resources(substring)
-            cleanup = resources.get_selection()
-    if args.unused:
+        return resources
+    return None
 
+
+if __name__ == '__main__':
+
+    parser = create_parser()
+    args = parser.parse_args()
+
+    pp = pprint.PrettyPrinter(indent=4)
+    now = datetime.datetime.now(pytz.utc)
+
+    set_logging(args.debug)
+
+    cloud = initialize_cloud(args.cloud)
+
+    resources = Resources(cloud)
+    cleanup = {}
+
+    if args.old_instances:
+        resources = select_oldest(cloud)
+        cleanup = resources.get_selection()
+        resources = Resources(cloud)
+
+    if args.unused:
         resources.select_resources('')
         cleanup = resources.get_selection()
 
