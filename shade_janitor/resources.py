@@ -62,6 +62,10 @@ class Resources(object):
                         'floating_ip': fip.floating_ip_address,
                         })
 
+    def reset(self):
+        """Reset selection to nothing"""
+        self._selection = {}
+
     def is_blacklisted(self, instance):
         """Check if instance is blacklisted."""
         if instance is not None and instance.name is not None:
