@@ -61,6 +61,11 @@ def set_logging(debug_mode):
         logging.basicConfig(format=log_format, level=logging.INFO)
 
 
+# TODO(jmls): identify better way to get unique substring
+def get_substr_from_name(resource_name):
+    return resource_name[0:15]
+
+
 def select_oldest(cloud):
     if cloud:
         resources = Resources(cloud)
@@ -82,7 +87,7 @@ def select_oldest(cloud):
                     rec['name'], rec['created_on'], str(rec['age']))
 
         if oldest is not None:
-            substring = new_search_prefix[0:15]
+            substring = get_substr_from_name(new_search_prefix)
             resources.select_resources(substring)
         return resources
     return None
@@ -116,10 +121,10 @@ if __name__ == '__main__':
         exclude_list = set(['public', 'provision'])
         dead_list = set()
 
-        # TODO(jmls): identify better way to get unique substring
         if 'instances' in cleanup:
             for key in cleanup['instances']:
-                exclude_list.add(cleanup['instances'][key]['name'][0:15])
+                sub = get_substr_from_name(cleanup['instances'][key]['name'])
+                exclude_list.add(sub)
         logging.debug("exclude list {}".format(str(exclude_list)))
         for type_key in cleanup:
             for key in cleanup[type_key]:
@@ -140,7 +145,7 @@ if __name__ == '__main__':
                     if 'rhos-' == name[0:5]:
                         name = name[5:]
 
-                    substr = name[0:15]
+                    substr = get_substr_from_name(name)
                     if substr not in exclude_list:
                         dead_list.add(substr)
         logging.info('identified possible unused {}'.format(dead_list))
