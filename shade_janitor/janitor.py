@@ -37,7 +37,7 @@ def create_parser():
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
         '--old', dest='old_instances', action='store_true',
-        help='attempt to identify old instances')
+        help='attempt to identify oldest instance to be purged')
     parser.add_argument(
         '--old-active', dest='old_active',
         default=8, type=int,
@@ -55,13 +55,13 @@ def create_parser():
               ' servers should be considered as old'))
     parser.add_argument(
         '--cleanup', dest='run_cleanup', action='store_true',
-        help='attempt to do cleanup')
+        help='attempt to do cleanup selected resources')
     parser.add_argument(
         '--debug', dest='debug', action='store_true',
         help='turn on debug')
     parser.add_argument(
         '--unused', dest='unused', action='store_true',
-        help='select unused resources')
+        help='select unused network resources')
 
     return parser
 
