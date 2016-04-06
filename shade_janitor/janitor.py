@@ -30,7 +30,7 @@ def initialize_cloud(cloud_name):
 def create_parser():
     """Create argument parser."""
     parser = argparse.ArgumentParser(
-        description='Identify resources to be cleaned up.')
+        description='Identify resources with options to show or do cleanup.')
     parser.add_argument(
         '--cloud', dest='cloud', help='cloud name to connect to')
     parser.add_argument(
