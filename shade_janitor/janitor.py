@@ -50,6 +50,9 @@ def create_parser():
     parser.add_argument(
         '--dryrun', dest='dryrun', action='store_true',
         help='show dry run cleanup commands for selected resources')
+    parser.add_argument(
+        '--quiet', '-q', dest='quiet', action='store_true',
+        help='quiet down the output for normal runs')
 
     return parser
 
@@ -179,8 +182,11 @@ if __name__ == '__main__':
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:
-        pp.pprint(cleanup)
-        cleanup_resources(cloud, cleanup, dry_run=True)
+        resources_selected_str = pp.format(cleanup)
+        if not args.quiet:
+            logging.info(resources_selected_str)
+        else:
+            logging.debug(resources_selected_str)
 
         if args.dryrun:
             cleanup_resources(cloud, cleanup, dry_run=True)
