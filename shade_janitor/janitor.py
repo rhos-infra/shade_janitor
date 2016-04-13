@@ -62,6 +62,9 @@ def create_parser():
     parser.add_argument(
         '--unused', dest='unused', action='store_true',
         help='select unused network resources')
+    parser.add_argument(
+        '--dryrun', dest='dryrun', action='store_true',
+        help='show dry run cleanup commands for selected resources')
 
     return parser
 
@@ -198,6 +201,9 @@ if __name__ == '__main__':
     if len(cleanup) > 0:
         pp.pprint(cleanup)
         cleanup_resources(cloud, cleanup, dry_run=True)
+
+        if args.dryrun:
+            cleanup_resources(cloud, cleanup, dry_run=True)
 
         if args.run_cleanup:
             cleanup_resources(cloud, cleanup, dry_run=False)
