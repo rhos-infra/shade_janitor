@@ -28,6 +28,7 @@ class SelectAgeRelatedResources(Resources):
     def select_old_instances(self, powered_on_ttl=timedelta(hours=8),
                              powered_off_ttl=timedelta(hours=1),
                              powered_on_permanent_ttl=timedelta(days=14),
+                             inerror_ttl=None,
                              now=None):
         """Check for old instances.
 
@@ -48,6 +49,9 @@ class SelectAgeRelatedResources(Resources):
             if self.is_permanent(instance):
                 if (powered_on_permanent_ttl
                         and age > powered_on_permanent_ttl):
+                    self._add_instance(instance, age=age)
+            elif instance.status == 'ERROR':
+                if (inerror_ttl and age > inerror_ttl):
                     self._add_instance(instance, age=age)
             elif instance['OS-EXT-STS:power_state'] == 0:
                 if (powered_off_ttl and age > powered_off_ttl):

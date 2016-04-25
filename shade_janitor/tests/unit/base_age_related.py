@@ -9,7 +9,7 @@ from shade_janitor.resources import Resources
 class FakeInstance(dict):
     NOW = datetime.datetime(2000, 1, 10, 0, 0, 1, tzinfo=utc)
 
-    def __init__(self, name, created_ago, power_state=1):
+    def __init__(self, name, created_ago, status='ACTIVE'):
         super(FakeInstance, self).__init__()
 
         self.id = name
@@ -19,7 +19,8 @@ class FakeInstance(dict):
         self.created = str(
             self.NOW - created_ago - datetime.timedelta(seconds=1)
         )
-        self['OS-EXT-STS:power_state'] = power_state
+        self.status = status
+        self['OS-EXT-STS:power_state'] = 0 if status == 'SHUTOFF' else 1
 
 
 class BaseTestCase(TestCase):
@@ -35,14 +36,16 @@ class BaseTestCase(TestCase):
         self._td_30d = datetime.timedelta(days=30)
 
         self._young = {'instances': {
-            '1H_Off': FakeInstance('1H_Off', self._td_1h, 0),
+            '1H_Off': FakeInstance('1H_Off', self._td_1h, 'SHUTOFF'),
             '2H_Active': FakeInstance('2H_Active', self._td_2h),
+            '0H_Error': FakeInstance('1H_Error', self._td_0, 'ERROR'),
             'young_permanent': FakeInstance('young_permanent', self._td_1h),
         }}
         self._old = {'instances': {
-            '30D_Off': FakeInstance('30D_Off', self._td_30d, 0),
-            '2H_Off': FakeInstance('2H_Off', self._td_2h, 0),
+            '30D_Off': FakeInstance('30D_Off', self._td_30d, 'SHUTOFF'),
+            '2H_Off': FakeInstance('2H_Off', self._td_2h, 'SHUTOFF'),
             '4H_Active': FakeInstance('4H_Active', self._td_4h),
+            '2H_Error': FakeInstance('2H_Error', self._td_2h, 'ERROR'),
             'old_permanent': FakeInstance('old_permanent', self._td_2d),
         }}
         self._all_as_list = (self._old['instances'].values() +
