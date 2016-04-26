@@ -88,7 +88,7 @@ def get_substr_from_name(resource_name):
 
 
 def select_oldest(cloud, args):
-    if cloud:
+    if cloud and args is not None:
         resources = Resources(cloud)
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances(
