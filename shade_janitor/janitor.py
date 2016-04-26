@@ -222,4 +222,5 @@ if __name__ == '__main__':
 
     Summary.print_summary()
     if not args.run_cleanup:
-        logging.info("Nothing cleaned up. To cleanup resources, please use --cleanup")
+        logging.info("Nothing cleaned up. To cleanup resources, "
+                     "please use --cleanup")
