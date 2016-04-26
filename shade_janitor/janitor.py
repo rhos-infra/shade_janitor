@@ -39,6 +39,21 @@ def create_parser():
         '--old', dest='old_instances', action='store_true',
         help='attempt to identify old instances')
     parser.add_argument(
+        '--old-active', dest='old_active',
+        default=8, type=int,
+        help=('age (in hours, 0=never) after which ACTIVE servers'
+              ' should be considered as old'))
+    parser.add_argument(
+        '--old-inactive', dest='old_inactive',
+        default=1, type=int,
+        help=('age (in hours, 0=never) after which SHUTOFF servers'
+              ' should be considered as old'))
+    parser.add_argument(
+        '--old-permanent', dest='old_permanent',
+        default=14, type=int,
+        help=('age (in days, 0=never) after which even permanent labeled'
+              ' servers should be considered as old'))
+    parser.add_argument(
         '--cleanup', dest='run_cleanup', action='store_true',
         help='attempt to do cleanup')
     parser.add_argument(
@@ -77,7 +92,11 @@ if __name__ == '__main__':
 
     if args.old_instances:
         age_resources = SelectAgeRelatedResources(cloud)
-        age_resources.select_old_instances()
+        age_resources.select_old_instances(
+            datetime.timedelta(hours=args.old_active),
+            datetime.timedelta(hours=args.old_inactive),
+            datetime.timedelta(days=args.old_permanent)
+        )
         old_resources = age_resources.get_selection()
         new_search_prefix = None
         oldest = None
