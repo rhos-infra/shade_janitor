@@ -187,6 +187,12 @@ if __name__ == '__main__':
             if 'fips' in cleanup and len(cleanup['fips']) > 0:
                 logging.info('skipping as there are floating ips live on here')
                 continue
+
+            resources_selected_str = pp.pformat(cleanup)
+            logging.debug(resources_selected_str)
+
+            if args.dryrun:
+                cleanup_resources(cloud, cleanup, dry_run=True)
             if args.run_cleanup:
                 try:
                     cleanup_resources(cloud, cleanup, dry_run=False)
