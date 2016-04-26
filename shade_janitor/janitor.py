@@ -30,14 +30,14 @@ def initialize_cloud(cloud_name):
 def create_parser():
     """Create argument parser."""
     parser = argparse.ArgumentParser(
-        description='Identify resources to be cleaned up.')
+        description='Identify resources with options to show or do cleanup.')
     parser.add_argument(
         '--cloud', dest='cloud', help='cloud name to connect to')
     parser.add_argument(
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
         '--old', dest='old_instances', action='store_true',
-        help='attempt to identify old instances')
+        help='attempt to identify oldest instance to be purged')
     parser.add_argument(
         '--old-active', dest='old_active',
         default=8, type=int,
@@ -55,13 +55,19 @@ def create_parser():
               ' servers should be considered as old'))
     parser.add_argument(
         '--cleanup', dest='run_cleanup', action='store_true',
-        help='attempt to do cleanup')
+        help='attempt to do cleanup selected resources')
     parser.add_argument(
         '--debug', dest='debug', action='store_true',
         help='turn on debug')
     parser.add_argument(
         '--unused', dest='unused', action='store_true',
-        help='select unused resources')
+        help='select unused network resources')
+    parser.add_argument(
+        '--dryrun', dest='dryrun', action='store_true',
+        help='show dry run cleanup commands for selected resources')
+    parser.add_argument(
+        '--quiet', '-q', dest='quiet', action='store_true',
+        help='quiet down the output for normal runs')
 
     return parser
 
@@ -75,22 +81,15 @@ def set_logging(debug_mode):
         log_format = "%(message)s"
         logging.basicConfig(format=log_format, level=logging.INFO)
 
-if __name__ == '__main__':
 
-    parser = create_parser()
-    args = parser.parse_args()
+# TODO(jmls): identify better way to get unique substring
+def get_substr_from_name(resource_name):
+    return resource_name[0:15]
 
-    pp = pprint.PrettyPrinter(indent=4)
-    now = datetime.datetime.now(pytz.utc)
 
-    set_logging(args.debug)
-
-    cloud = initialize_cloud(args.cloud)
-
-    resources = Resources(cloud)
-    cleanup = {}
-
-    if args.old_instances:
+def select_oldest(cloud):
+    if cloud:
+        resources = Resources(cloud)
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances(
             datetime.timedelta(hours=args.old_active),
@@ -114,11 +113,33 @@ if __name__ == '__main__':
                                      str(rec['age'])))
 
         if oldest is not None:
-            substring = new_search_prefix[0:15]
+            substring = get_substr_from_name(new_search_prefix)
             resources.select_resources(substring)
-            cleanup = resources.get_selection()
-    if args.unused:
+        return resources
+    return None
 
+
+if __name__ == '__main__':
+
+    parser = create_parser()
+    args = parser.parse_args()
+
+    pp = pprint.PrettyPrinter(indent=4)
+    now = datetime.datetime.now(pytz.utc)
+
+    set_logging(args.debug)
+
+    cloud = initialize_cloud(args.cloud)
+
+    resources = Resources(cloud)
+    cleanup = {}
+
+    if args.old_instances:
+        resources = select_oldest(cloud)
+        cleanup = resources.get_selection()
+        resources = Resources(cloud)
+
+    if args.unused:
         resources.select_resources('')
         cleanup = resources.get_selection()
 
@@ -126,10 +147,10 @@ if __name__ == '__main__':
         exclude_list = set(['public', 'provision'])
         dead_list = set()
 
-        # TODO(jmls): identify better way to get unique substring
         if 'instances' in cleanup:
             for key in cleanup['instances']:
-                exclude_list.add(cleanup['instances'][key]['name'][0:15])
+                sub = get_substr_from_name(cleanup['instances'][key]['name'])
+                exclude_list.add(sub)
         logging.debug("exclude list {}".format(str(exclude_list)))
         for type_key in cleanup:
             for key in cleanup[type_key]:
@@ -150,7 +171,7 @@ if __name__ == '__main__':
                     if 'rhos-' == name[0:5]:
                         name = name[5:]
 
-                    substr = name[0:15]
+                    substr = get_substr_from_name(name)
                     if substr not in exclude_list:
                         dead_list.add(substr)
         logging.info('identified possible unused {}'.format(dead_list))
@@ -181,8 +202,14 @@ if __name__ == '__main__':
         cleanup = resources.get_selection()
 
     if len(cleanup) > 0:
-        pp.pprint(cleanup)
-        cleanup_resources(cloud, cleanup, dry_run=True)
+        resources_selected_str = pp.format(cleanup)
+        if not args.quiet:
+            logging.info(resources_selected_str)
+        else:
+            logging.debug(resources_selected_str)
+
+        if args.dryrun:
+            cleanup_resources(cloud, cleanup, dry_run=True)
 
         if args.run_cleanup:
             cleanup_resources(cloud, cleanup, dry_run=False)
