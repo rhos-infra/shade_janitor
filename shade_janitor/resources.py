@@ -212,6 +212,7 @@ class Resources(object):
             self.select_networks_name_substring(substring)
             self.select_subnets_name_substring(substring)
             self.select_routers_name_substring(substring)
+            self.select_stacks_name_substring(substring)
             self.select_related_ports()
             self.select_floatingips_unattached()
         except shade.exc.OpenStackCloudException:
