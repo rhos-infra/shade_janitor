@@ -1,7 +1,6 @@
 import datetime
-import mock
 from pytz import utc
-from shade_janitor.tests.unit import base
+from shade_janitor.tests.unit import base_age_related
 
 from shade_janitor.select_age import SelectAgeRelatedResources
 
@@ -22,45 +21,23 @@ class FakeInstance(dict):
         self['OS-EXT-STS:power_state'] = power_state
 
 
-class TestSelectAge(base.BaseTestCase):
+class TestSelectAge(base_age_related.BaseTestCase):
 
     def setUp(self):
         super(TestSelectAge, self).setUp()
-        self.maxDiff = None
-
-        self._td_0 = datetime.timedelta(hours=0)
-        self._td_1h = datetime.timedelta(hours=1)
-        self._td_2h = datetime.timedelta(hours=2)
-        self._td_4h = datetime.timedelta(hours=4)
-        self._td_2d = datetime.timedelta(days=2)
-        self._td_30d = datetime.timedelta(days=30)
-        self._young = {'instances': {
-            '1H_Off': FakeInstance('1H_Off', self._td_1h, 0),
-            '2H_Active': FakeInstance('2H_Active', self._td_2h),
-            'young_permanent': FakeInstance('young_permanent', self._td_1h),
-        }}
-        self._old = {'instances': {
-            '30D_Off': FakeInstance('30D_Off', self._td_30d, 0),
-            '2H_Off': FakeInstance('2H_Off', self._td_2h, 0),
-            '4H_Active': FakeInstance('4H_Active', self._td_4h),
-            'old_permanent': FakeInstance('old_permanent', self._td_2d),
-        }}
-        self._all_as_list = (self._old['instances'].values() +
-                             self._young['instances'].values())
+        pass
 
     def test_select_age_no_instances(self):
         """Nothing selected when there are no servers"""
-        cloud = mock.Mock()
-        cloud.list_servers = mock.Mock(return_value=[])
+        cloud = self.getCloudNoInstances()
+
         resources = SelectAgeRelatedResources(cloud)
         resources.select_old_instances()
         self.assertEqual({}, resources.get_selection())
 
     def test_select_age_old(self):
         """Select older instances"""
-        cloud = mock.Mock()
-        cloud.list_servers = mock.Mock(
-            return_value=self._old['instances'].values())
+        cloud = self.getCloudOldInstance()
 
         resources = SelectAgeRelatedResources(cloud)
         resources.select_old_instances(powered_off_ttl=self._td_2h,
@@ -76,9 +53,7 @@ class TestSelectAge(base.BaseTestCase):
 
     def test_select_age_no_young(self):
         """Do not select young(er) instances"""
-        cloud = mock.Mock()
-        cloud.list_servers = mock.Mock(
-            return_value=self._young['instances'].values())
+        cloud = self.getCloudYoungInstance()
 
         resources = SelectAgeRelatedResources(cloud)
         resources.select_old_instances(powered_off_ttl=self._td_2h,
@@ -93,8 +68,8 @@ class TestSelectAge(base.BaseTestCase):
 
     def test_select_noage(self):
         """Zero ttl means do not selected, even when very old"""
-        cloud = mock.Mock()
-        cloud.list_servers = mock.Mock(return_value=self._all_as_list)
+        cloud = self.getCloudYoungAndOldInstances()
+
         resources = SelectAgeRelatedResources(cloud)
         resources.select_old_instances(powered_off_ttl=self._td_0,
                                        powered_on_ttl=self._td_0,
