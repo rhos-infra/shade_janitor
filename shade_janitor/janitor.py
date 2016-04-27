@@ -87,8 +87,8 @@ def get_substr_from_name(resource_name):
     return resource_name[0:15]
 
 
-def select_oldest(cloud):
-    if cloud:
+def select_oldest(cloud, args):
+    if cloud and args is not None:
         resources = Resources(cloud)
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances(
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     cleanup = {}
 
     if args.old_instances:
-        resources = select_oldest(cloud)
+        resources = select_oldest(cloud, args)
         cleanup = resources.get_selection()
         resources = Resources(cloud)
 
@@ -221,3 +221,6 @@ if __name__ == '__main__':
             cleanup_resources(cloud, cleanup, dry_run=False)
 
     Summary.print_summary()
+    if not args.run_cleanup:
+        logging.info("Nothing cleaned up. To cleanup resources, "
+                     "please use --cleanup")
