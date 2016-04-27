@@ -1,5 +1,5 @@
-import mock
 import datetime
+import mock
 from pytz import utc
 from unittest import TestCase
 
