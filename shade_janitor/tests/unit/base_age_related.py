@@ -1,8 +1,8 @@
 import mock
 import datetime
 from pytz import utc
-
 from unittest import TestCase
+
 from shade_janitor.resources import Resources
 
 

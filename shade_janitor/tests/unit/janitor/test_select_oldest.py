@@ -18,11 +18,11 @@ class TestSelectOldest(base_age_related.BaseTestCase):
 
     def test_cloud_mock_no_args(self):
         cloud = self.getCloudNoInstances()
-        self.assertEquals(None, select_oldest(cloud, None))
+        self.assertEqual(None, select_oldest(cloud, None))
 
     def test_cloud_mock_gives_resources_selection_back(self):
         cloud = self.getCloudNoInstances()
-        self.assertNotEquals(None, select_oldest(cloud, self.args))
+        self.assertNotEqual(None, select_oldest(cloud, self.args))
 
     def test_no_old_instances_none_selected(self):
         cloud = self.getCloudNoInstances()
