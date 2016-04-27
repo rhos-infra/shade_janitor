@@ -48,7 +48,6 @@ class BaseTestCase(TestCase):
         self._all_as_list = (self._old['instances'].values() +
                              self._young['instances'].values())
 
-
     def getCloudNoInstances(self):
         cloud = mock.Mock()
         cloud.list_servers = mock.Mock(return_value=[])
