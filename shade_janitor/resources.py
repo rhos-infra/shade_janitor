@@ -120,18 +120,14 @@ class Resources(object):
 
     def select_stacks(self):
         """Select stacks."""
-        # TODO: this logic is incorrect and fails
-        return
         for stack in self._cloud.list_stacks():
-            self._add('stacks', stack['id'], stack['name'])
+            self._add('stacks', stack.id, stack.stack_name)
 
     def select_stacks_name_substring(self, search_substring):
         """Select stacks based on substring."""
-        # TODO: this logic is incorrect and fails
-        return
         for stack in self._cloud.list_stacks():
-            if search_substring in stack['name']:
-                self._add('stacks', stack['id'], stack['name'])
+            if search_substring in stack.stack_name:
+                self._add('stacks', stack.id, stack.stack_name)
 
     def select_subnets(self):
         """Select routers."""
