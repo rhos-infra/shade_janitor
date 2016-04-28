@@ -201,6 +201,7 @@ if __name__ == '__main__':
                         'We had a problem trying to clean up [{}]'
                         .format(substr))
                     logging.error(e)
+        cleanup = {}
 
     if not args.old_instances and not args.unused:
         substring = args.substring or ''
