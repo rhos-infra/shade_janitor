@@ -73,10 +73,21 @@ To list the resources that include the substring 'smb'
 
     ./janitor.py --cloud qeos7 --substring smb
 
-To list old resources
+To list old (oldest instance and associated resources)
 
     ./janitor.py --cloud qeos7 --old
 
-To cleanup old resources
+To cleanup old (oldest instance and associated resources)
 
     ./janitor.py --cloud qeos7 --old --cleanup
+
+Experimental Feature(s):
+
+unused resources
+
+    janitor.py --unused
+
+this will look through the current resources and attempt
+to identify any network resources not associated with IPs
+or VMs.  These sets of resources can then be processed for
+cleanup.
