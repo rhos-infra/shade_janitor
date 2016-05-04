@@ -1,5 +1,8 @@
 # shade_janitor
 
+![TravisCI](https://img.shields.io/travis/yazug/shade_janitor.svg)
+https://travis-ci.org/yazug/shade_janitor
+
 Utility based on shade, for cleaning up resources from CI runs in tenant on
 OpenStack cloud.
 
