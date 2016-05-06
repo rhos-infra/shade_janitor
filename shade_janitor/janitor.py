@@ -36,6 +36,9 @@ def create_parser():
     parser.add_argument(
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
+        '--floatingips', dest='floatingips', action='store_true',
+        help='cleanup any unused floating ips in tenant')
+    parser.add_argument(
         '--old', dest='old_instances', action='store_true',
         help='attempt to identify oldest instance to be purged')
     parser.add_argument(
@@ -119,6 +122,21 @@ def select_oldest(cloud, args):
     return None
 
 
+def do_cleanup(cloud, cleanup, pp, args):
+    if len(cleanup) > 0:
+        resources_selected_str = pp.pformat(cleanup)
+        if not args.quiet:
+            logging.info(resources_selected_str)
+        else:
+            logging.debug(resources_selected_str)
+
+        if args.dryrun:
+            cleanup_resources(cloud, cleanup, dry_run=True)
+
+        if args.run_cleanup:
+            cleanup_resources(cloud, cleanup, dry_run=False)
+
+
 if __name__ == '__main__':
 
     parser = create_parser()
@@ -132,11 +150,17 @@ if __name__ == '__main__':
     cloud = initialize_cloud(args.cloud)
 
     resources = Resources(cloud)
-    cleanup = {}
+
+    if args.floatingips:
+        resources.select_floatingips_unattached()
+        cleanup = resources.get_selection()
+        do_cleanup(cloud, cleanup, pp, args)
+        resources = Resources(cloud)
 
     if args.old_instances:
         resources = select_oldest(cloud, args)
         cleanup = resources.get_selection()
+        do_cleanup(cloud, cleanup, pp, args)
         resources = Resources(cloud)
 
     if args.unused:
@@ -201,25 +225,12 @@ if __name__ == '__main__':
                         'We had a problem trying to clean up [{}]'
                         .format(substr))
                     logging.error(e)
-        cleanup = {}
 
-    if not args.old_instances and not args.unused:
+    if not args.old_instances and not args.unused and not args.floatingips:
         substring = args.substring or ''
         resources.select_resources(substring)
         cleanup = resources.get_selection()
-
-    if len(cleanup) > 0:
-        resources_selected_str = pp.pformat(cleanup)
-        if not args.quiet:
-            logging.info(resources_selected_str)
-        else:
-            logging.debug(resources_selected_str)
-
-        if args.dryrun:
-            cleanup_resources(cloud, cleanup, dry_run=True)
-
-        if args.run_cleanup:
-            cleanup_resources(cloud, cleanup, dry_run=False)
+        do_cleanup(cloud, cleanup, pp, args)
 
     Summary.print_summary()
     if not args.run_cleanup:
