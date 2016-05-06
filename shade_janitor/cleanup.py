@@ -123,23 +123,24 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
 
     if 'router_interfaces' in resource_selection:
         router_ids = []
-        subnet_ids = []
         if 'routers' in resource_selection:
             for r_uuid in resource_selection['routers']:
                 router_ids.append(r_uuid)
-        for uuid in resource_selection['router_interfaces']:
-            subs = resource_selection['router_interfaces'][uuid]['subnet_ids']
-            subnet_ids.extend(subs)
+
+        interface_entries = resource_selection['router_interfaces']
 
         for r_uuid in router_ids:
-            for uuid in subnet_ids:
-                if dry_run:
-                    show_cleanup(
-                        'neutron router-interface-delete {0} {1}'.format(
-                            r_uuid, uuid))
-                else:
-                    for router in cloud.search_routers(r_uuid):
-                        cloud.remove_router_interface(router, uuid)
+            for router in cloud.search_routers(r_uuid):
+                for key in interface_entries:
+                    inter = interface_entries[key]
+
+                    if dry_run:
+                        for sub_id in inter['subnet_ids']:
+                            show_cleanup(
+                                'neutron router-interface-delete {0} {1}'.format(
+                                    r_uuid, sub_id))
+                    else:
+                        cloud.remove_router_interface(router, port_id=inter['id'])
 
     if dry_run:
         if 'stacks' in resource_selection:
