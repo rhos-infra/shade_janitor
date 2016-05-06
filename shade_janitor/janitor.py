@@ -119,6 +119,21 @@ def select_oldest(cloud, args):
     return None
 
 
+def do_cleanup(cloud, cleanup, pp, args):
+    if len(cleanup) > 0:
+        resources_selected_str = pp.pformat(cleanup)
+        if not args.quiet:
+            logging.info(resources_selected_str)
+        else:
+            logging.debug(resources_selected_str)
+
+        if args.dryrun:
+            cleanup_resources(cloud, cleanup, dry_run=True)
+
+        if args.run_cleanup:
+            cleanup_resources(cloud, cleanup, dry_run=False)
+
+
 if __name__ == '__main__':
 
     parser = create_parser()
@@ -208,18 +223,7 @@ if __name__ == '__main__':
         resources.select_resources(substring)
         cleanup = resources.get_selection()
 
-    if len(cleanup) > 0:
-        resources_selected_str = pp.pformat(cleanup)
-        if not args.quiet:
-            logging.info(resources_selected_str)
-        else:
-            logging.debug(resources_selected_str)
-
-        if args.dryrun:
-            cleanup_resources(cloud, cleanup, dry_run=True)
-
-        if args.run_cleanup:
-            cleanup_resources(cloud, cleanup, dry_run=False)
+    do_cleanup(cloud, cleanup, pp, args)
 
     Summary.print_summary()
     if not args.run_cleanup:
