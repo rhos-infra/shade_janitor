@@ -36,6 +36,9 @@ def create_parser():
     parser.add_argument(
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
+        '--floatingips', dest='floatingips', action='store_true',
+        help='cleanup any unused floating ips in tenant')
+    parser.add_argument(
         '--old', dest='old_instances', action='store_true',
         help='attempt to identify oldest instance to be purged')
     parser.add_argument(
@@ -148,6 +151,12 @@ if __name__ == '__main__':
 
     resources = Resources(cloud)
 
+    if args.floatingips:
+        resources.select_floatingips_unattached()
+        cleanup = resources.get_selection()
+        do_cleanup(cloud, cleanup, pp, args)
+        resources = Resources(cloud)
+
     if args.old_instances:
         resources = select_oldest(cloud, args)
         cleanup = resources.get_selection()
@@ -217,7 +226,7 @@ if __name__ == '__main__':
                         .format(substr))
                     logging.error(e)
 
-    if not args.old_instances and not args.unused:
+    if not args.old_instances and not args.unused and not args.floatingips:
         substring = args.substring or ''
         resources.select_resources(substring)
         cleanup = resources.get_selection()
