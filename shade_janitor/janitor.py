@@ -147,11 +147,11 @@ if __name__ == '__main__':
     cloud = initialize_cloud(args.cloud)
 
     resources = Resources(cloud)
-    cleanup = {}
 
     if args.old_instances:
         resources = select_oldest(cloud, args)
         cleanup = resources.get_selection()
+        do_cleanup(cloud, cleanup, pp, args)
         resources = Resources(cloud)
 
     if args.unused:
@@ -216,14 +216,12 @@ if __name__ == '__main__':
                         'We had a problem trying to clean up [{}]'
                         .format(substr))
                     logging.error(e)
-        cleanup = {}
 
     if not args.old_instances and not args.unused:
         substring = args.substring or ''
         resources.select_resources(substring)
         cleanup = resources.get_selection()
-
-    do_cleanup(cloud, cleanup, pp, args)
+        do_cleanup(cloud, cleanup, pp, args)
 
     Summary.print_summary()
     if not args.run_cleanup:
