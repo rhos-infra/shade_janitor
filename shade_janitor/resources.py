@@ -163,15 +163,44 @@ class Resources(object):
                 continue
             self._add_floatingip(fip)
 
+    def select_related_router_interfaces(self):
+        """Select only related router interface ports"""
+        if 'routers' in self._selection:
+            for router_id in self._selection['routers']:
+                for router in self._cloud.search_routers(router_id):
+                    for inter in self._cloud.list_router_interfaces(router):
+                        subnet_ids = []
+                        pick_it = False
+                        network_id = None
+
+                        if 'fixed_ips' in inter:
+                            for sub in inter['fixed_ips']:
+                                subnet_ids.append(sub['subnet_id'])
+                        if 'subnets' in self._selection:
+                            for sub in subnet_ids:
+                                if sub in self._selection['subnets']:
+                                    pick_it = True
+                                    break
+
+                        if 'network_id' in inter:
+                            network_id = inter['network_id']
+                            if 'nets' in self._selection:
+                                if network_id in self._selection['nets']:
+                                    pick_it = True
+
+                        if pick_it:
+                            self._add('router_interfaces', inter['id'],
+                                      data={'subnet_ids': subnet_ids,
+                                            'network_id': network_id})
+
     def select_related_ports(self):
         """Select related ports."""
         for port in self._cloud.list_ports():
 
             pick_it = False
 
-            router_interface = False
             if port['device_owner'] == 'network:router_interface':
-                router_interface = True
+                continue
 
             subnet_ids = []
             for sub in port['fixed_ips']:
@@ -191,13 +220,8 @@ class Resources(object):
                     if network_id in self._selection['nets']:
                         pick_it = True
 
-            if pick_it and not router_interface:
+            if pick_it:
                 self._add('ports', port['id'],
-                          data={'subnet_ids': subnet_ids,
-                                'network_id': network_id})
-
-            if pick_it and router_interface:
-                self._add('router_interfaces', port['id'],
                           data={'subnet_ids': subnet_ids,
                                 'network_id': network_id})
 
@@ -214,6 +238,7 @@ class Resources(object):
             self.select_routers_name_substring(substring)
             self.select_stacks_name_substring(substring)
             self.select_related_ports()
+            self.select_related_router_interfaces()
             self.select_floatingips_unattached()
         except shade.exc.OpenStackCloudException:
             # We don't care as this is the case for QEOS4 lab
