@@ -9,6 +9,7 @@ import shade
 
 from cleanup import cleanup_resources
 from resources import Resources
+from resources import SelectUnusedResources
 from select_age import SelectAgeRelatedResources
 from summary import Summary
 
@@ -64,7 +65,29 @@ def create_parser():
         help='turn on debug')
     parser.add_argument(
         '--unused', dest='unused', action='store_true',
-        help='select unused network resources')
+        help=('select unused network resources'
+              ' (exclude those with name same as existing VMs)'))
+    parser.add_argument(
+        '--unused-netres', dest='unused_netres', action='store_true',
+        help=('select unused network resources'
+              ' (networks without VMs, routers without ports,'
+              ' unassigned Floating IPs, exclude shared/public)'))
+    parser.add_argument(
+        '--unused-refine-count', dest='refine_count',
+        default=3, type=int,
+        help=('how many times to search for unused resources for refining'
+              'the results (to exclude resource which are just being created'
+              ' and going to be used in next seconds/minute)'))
+    parser.add_argument(
+        '--unused-refine-delay', dest='refine_delay',
+        default=60, type=int,
+        help=('how long (seconds) to wait between each search try when'
+              ' refining the selection'))
+    parser.add_argument(
+        '--unused-exclude-flips', dest='exclude_flips',
+        default='', type=str,
+        help=('comma separated list of FloatingIPs'
+              ' which should be ignored even when not in use'))
     parser.add_argument(
         '--dryrun', dest='dryrun', action='store_true',
         help='show dry run cleanup commands for selected resources')
@@ -163,6 +186,18 @@ if __name__ == '__main__':
         do_cleanup(cloud, cleanup, pp, args)
         resources = Resources(cloud)
 
+    if args.unused_netres:
+        cloud, args
+        resources = SelectUnusedResources(cloud)
+        resources.select_unuset_netresources(
+            search_substring=args.substring,
+            refine_count=args.refine_count,
+            refine_delay=args.refine_delay,
+            exclude_flips=args.exclude_flips,
+        )
+        cleanup = resources.get_selection()
+        do_cleanup(cloud, cleanup, pp, args)
+
     if args.unused:
         resources.select_resources('')
         cleanup = resources.get_selection()
@@ -226,7 +261,11 @@ if __name__ == '__main__':
                         .format(substr))
                     logging.error(e)
 
-    if not args.old_instances and not args.unused and not args.floatingips:
+    if (not args.old_instances
+            and not args.unused
+            and not args.floatingips
+            and not args.unused_netres):
+
         substring = args.substring or ''
         resources.select_resources(substring)
         cleanup = resources.get_selection()
