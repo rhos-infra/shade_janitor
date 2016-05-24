@@ -12,6 +12,7 @@ class TestSelectOldest(base_age_related.BaseTestCase):
         self.args.old_active = 8
         self.args.old_inactive = 1
         self.args.old_permanent = 14
+        self.args.old_inerrror = 1
 
     def test_cloud_None(self):
         self.assertEqual(None, select_oldest(None, None))

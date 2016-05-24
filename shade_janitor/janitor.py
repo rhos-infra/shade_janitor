@@ -57,6 +57,11 @@ def create_parser():
         help=('age (in days, 0=never) after which even permanent labeled'
               ' servers should be considered as old'))
     parser.add_argument(
+        '--old-inerror', dest='old_inerrror',
+        default=1, type=int,
+        help=('age (in hours, 0=never) after which ERROR servers'
+              ' should be considered as old'))
+    parser.add_argument(
         '--cleanup', dest='run_cleanup', action='store_true',
         help='attempt to do cleanup selected resources')
     parser.add_argument(
@@ -97,7 +102,8 @@ def select_oldest(cloud, args):
         age_resources.select_old_instances(
             datetime.timedelta(hours=args.old_active),
             datetime.timedelta(hours=args.old_inactive),
-            datetime.timedelta(days=args.old_permanent)
+            datetime.timedelta(days=args.old_permanent),
+            datetime.timedelta(hours=args.old_inerrror)
         )
         old_resources = age_resources.get_selection()
         new_search_prefix = None
