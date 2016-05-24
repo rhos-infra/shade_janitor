@@ -137,7 +137,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
                     if dry_run:
                         for sub_id in inter['subnet_ids']:
                             show_cleanup(
-                                'neutron router-interface-delete {0} {1}'.format(
+                                ('neutron router-interface-delete ' +
+                                 ' {0} {1}').format(
                                     r_uuid, sub_id))
                     else:
                         cloud.remove_router_interface(
