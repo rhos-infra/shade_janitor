@@ -140,7 +140,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
                                 'neutron router-interface-delete {0} {1}'.format(
                                     r_uuid, sub_id))
                     else:
-                        cloud.remove_router_interface(router, port_id=inter['id'])
+                        cloud.remove_router_interface(
+                            router, port_id=inter['id'])
 
     if dry_run:
         if 'stacks' in resource_selection:
