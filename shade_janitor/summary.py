@@ -11,6 +11,7 @@ class Summary(object):
     num_of_routers = 0
     num_of_ports = 0
     num_of_stacks = 0
+    num_of_keypairs = 0
 
     @classmethod
     def print_summary(cls):
@@ -24,10 +25,12 @@ class Summary(object):
                      "\tNumber of routers: {}\n"
                      "\tNumber of ports: {}\n"
                      "\tNumber of stacks: {}\n"
+                     "\tNumber of keypairs: {}\n"
                      .format(cls.num_of_instances,
                              cls.num_of_networks,
                              cls.num_of_subnets,
                              cls.num_of_floating_ips,
                              cls.num_of_routers,
                              cls.num_of_ports,
-                             cls.num_of_stacks))
+                             cls.num_of_stacks,
+                             cls.num_of_keypairs))

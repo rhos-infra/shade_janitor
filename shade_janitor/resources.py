@@ -103,6 +103,12 @@ class Resources(object):
             if search_substring in instance.name:
                 self._add_instance(instance)
 
+    def select_keypairs_name_substring(self, search_substring):
+        """Select keypairs based on substring."""
+        for keypair in self._cloud.list_keypairs():
+            if search_substring in keypair['name']:
+                self._add('keypairs', keypair['id'], keypair['name'])
+
     def select_networks(self):
         """Exlcude router:external routers"""
         for network in self._cloud.list_networks():
@@ -237,6 +243,7 @@ class Resources(object):
             self.select_subnets_name_substring(substring)
             self.select_routers_name_substring(substring)
             self.select_stacks_name_substring(substring)
+            self.select_keypairs_name_substring(substring)
             self.select_related_ports()
             self.select_related_router_interfaces()
             self.select_floatingips_unattached()

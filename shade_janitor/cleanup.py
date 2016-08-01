@@ -107,6 +107,20 @@ def dry_cleanup_floating_ips(floating_ips):
         show_cleanup('neutron floatingip-delete {}'.format(uuid))
 
 
+def cleanup_keypairs(cloud, keypairs):
+    """Cleanup keypairs."""
+    for uuid in keypairs:
+        Summary.num_of_keypairs += 1
+        cloud.delete_keypair(keypairs[uuid]['name'])
+
+
+def dry_cleanup_keypairs(keypairs):
+    """Dry cleanup keypairs."""
+    for uuid in keypairs:
+        Summary.num_of_keypairs += 1
+        show_cleanup('nova keypair-delete {}'.format(keypairs[uuid]['name']))
+
+
 def cleanup_resources(cloud, resource_selection, dry_run=True):
     """Cleanup resources
 
@@ -157,6 +171,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             dry_cleanup_routers(resource_selection['routers'])
         if 'fips' in resource_selection:
             dry_cleanup_floating_ips(resource_selection['fips'])
+        if 'keypairs' in resource_selection:
+            dry_cleanup_keypairs(resource_selection['keypairs'])
     else:
         if 'stacks' in resource_selection:
             cleanup_stacks(cloud, resource_selection['stacks'])
@@ -170,3 +186,5 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             cleanup_routers(cloud, resource_selection['routers'])
         if 'fips' in resource_selection:
             cleanup_floating_ips(cloud, resource_selection['fips'])
+        if 'keypairs' in resource_selection:
+            cleanup_keypairs(cloud, resource_selection['keypairs'])
