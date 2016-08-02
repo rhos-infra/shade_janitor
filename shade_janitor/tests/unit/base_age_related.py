@@ -66,6 +66,7 @@ class BaseTestCase(TestCase):
         cloud.list_ports = mock.Mock(return_value=[])
         cloud.list_floating_ips = mock.Mock(return_value=[])
         cloud.list_stacks = mock.Mock(return_value=[])
+        cloud.list_keypairs = mock.Mock(return_value=[])
         return cloud
 
     def getCloudOldInstance(self):
@@ -78,6 +79,7 @@ class BaseTestCase(TestCase):
         cloud.list_ports = mock.Mock(return_value=[])
         cloud.list_floating_ips = mock.Mock(return_value=[])
         cloud.list_stacks = mock.Mock(return_value=[])
+        cloud.list_keypairs = mock.Mock(return_value=[])
         return cloud
 
     def getCloudYoungAndOldInstances(self):
@@ -89,4 +91,5 @@ class BaseTestCase(TestCase):
         cloud.list_ports = mock.Mock(return_value=[])
         cloud.list_floating_ips = mock.Mock(return_value=[])
         cloud.list_stacks = mock.Mock(return_value=[])
+        cloud.list_keypairs = mock.Mock(return_value=[])
         return cloud
