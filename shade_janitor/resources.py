@@ -107,6 +107,8 @@ class Resources(object):
         """Select keypairs based on substring."""
         for keypair in self._cloud.list_keypairs():
             if search_substring in keypair['name']:
+                if keypair['name'] in ('rhos-jenkins'):
+                    continue
                 self._add('keypairs', keypair['id'], keypair['name'])
 
     def select_networks(self):
