@@ -94,3 +94,11 @@ this will look through the current resources and attempt
 to identify any network resources not associated with IPs
 or VMs.  These sets of resources can then be processed for
 cleanup.
+
+### How to add new type of resource
+
+* Add select_<type_of_resource> in shade_janotir/resources.py and call it from select_resources function
+* Add a dry cleanup in shade_janitor/cleanup.py
+* Add a real cleanup in shade_janitor/cleanup.py
+* Add resource counter in shade_janitor/summary.py
+* Add unit tests in shade_janitor/tests

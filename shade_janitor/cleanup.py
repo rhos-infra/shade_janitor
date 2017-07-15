@@ -121,6 +121,21 @@ def dry_cleanup_keypairs(keypairs):
         show_cleanup('nova keypair-delete {}'.format(keypairs[uuid]['name']))
 
 
+def cleanup_secgroups(cloud, secgroups):
+    """Cleanup security groups."""
+    for secgroup in secgroups:
+        Summary.num_of_secgroups += 1
+        cloud.delete_security_group(secgroups[secgroup]['name'])
+
+
+def dry_cleanup_secgroups(secgroups):
+    """Dry cleanup security groups."""
+    for secgroup in secgroups:
+        Summary.num_of_secgroups += 1
+        show_cleanup('nova secgroup-delete {}'.format(
+            secgroups[secgroup]['name']))
+
+
 def cleanup_resources(cloud, resource_selection, dry_run=True):
     """Cleanup resources
 
@@ -173,6 +188,8 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             dry_cleanup_floating_ips(resource_selection['fips'])
         if 'keypairs' in resource_selection:
             dry_cleanup_keypairs(resource_selection['keypairs'])
+        if 'secgroups' in resource_selection:
+            dry_cleanup_secgroups(resource_selection['secgroups'])
     else:
         if 'stacks' in resource_selection:
             cleanup_stacks(cloud, resource_selection['stacks'])
@@ -188,3 +205,5 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
             cleanup_floating_ips(cloud, resource_selection['fips'])
         if 'keypairs' in resource_selection:
             cleanup_keypairs(cloud, resource_selection['keypairs'])
+        if 'secgroups' in resource_selection:
+            cleanup_secgroups(cloud, resource_selection['secgroups'])

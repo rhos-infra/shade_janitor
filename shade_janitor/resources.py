@@ -159,6 +159,11 @@ class Resources(object):
             if search_substring in router['name']:
                 self._add('routers', router['id'], router['name'])
 
+    def select_security_groups(self):
+        """Select security groups."""
+        for secgroup in self._cloud.list_security_groups():
+            self._add('secgroups', secgroup['id'], secgroup['name'])
+
     def select_floatingips(self):
         """Select floating ip."""
         for fip in self._cloud.list_floating_ips():
@@ -249,6 +254,7 @@ class Resources(object):
             self.select_related_ports()
             self.select_related_router_interfaces()
             self.select_floatingips_unattached()
+            self.select_security_groups()
         except shade.exc.OpenStackCloudException:
             # We don't care as this is the case for QEOS4 lab
             pass
