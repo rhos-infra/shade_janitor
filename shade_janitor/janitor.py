@@ -36,6 +36,8 @@ def create_parser():
     parser.add_argument(
         '--substring', dest='substring', help='name substring to search for')
     parser.add_argument(
+        '--blacklist', dest='blacklist', help='adding word to the blacklist')
+    parser.add_argument(
         '--floatingips', dest='floatingips', action='store_true',
         help='cleanup any unused floating ips in tenant')
     parser.add_argument(
@@ -98,6 +100,8 @@ def get_substr_from_name(resource_name):
 def select_oldest(cloud, args):
     if cloud and args is not None:
         resources = Resources(cloud)
+        if isinstance(args.blacklist, str):
+            resources.blacklist.append(args.blacklist)
         age_resources = SelectAgeRelatedResources(cloud)
         age_resources.select_old_instances(
             datetime.timedelta(hours=args.old_active),

@@ -22,9 +22,8 @@ class Resources(object):
         print selection[key]
     """
 
-    BLACKLIST = ['jenkins', 'slave', 'mirror']
-
     def __init__(self, cloud):
+        self.blacklist = ['jenkins', 'slave', 'mirror']
         self._cloud = cloud
         if self._cloud is None:
             raise NoCloudException('No cloud provided')
@@ -69,7 +68,7 @@ class Resources(object):
     def is_blacklisted(self, instance):
         """Check if instance is blacklisted."""
         if instance is not None and instance.name is not None:
-            for entry in self.BLACKLIST:
+            for entry in self.blacklist:
                 if entry in instance.name:
                     return True
 
