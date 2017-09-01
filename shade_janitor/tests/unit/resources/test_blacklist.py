@@ -39,3 +39,8 @@ class TestBlackList(base.BaseTestCase):
 
     def test_none(self):
         self.assertFalse(self.resources.is_blacklisted(None))
+
+    def test_custom_blacklist(self):
+        self.resources.blacklist.append("mario")
+        self.instance.name = "its-a-me-mario"
+        self.assertTrue(self.resources.is_blacklisted(self.instance))

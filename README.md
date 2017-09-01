@@ -95,7 +95,12 @@ to identify any network resources not associated with IPs
 or VMs.  These sets of resources can then be processed for
 cleanup.
 
-### How to add new type of resource
+### Blacklist
+
+There is a list of words which will keep your resources from being removed.
+The words are: 'slave', 'jenkins' and 'mirror'
+
+### How to add a new type of resource
 
 * Add select_<type_of_resource> in shade_janotir/resources.py and call it from select_resources function
 * Add a dry cleanup in shade_janitor/cleanup.py
