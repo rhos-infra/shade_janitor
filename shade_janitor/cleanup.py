@@ -125,7 +125,7 @@ def cleanup_secgroups(cloud, secgroups):
     """Cleanup security groups."""
     for secgroup in secgroups:
         Summary.num_of_secgroups += 1
-        cloud.delete_security_group(secgroups[secgroup]['name'])
+        cloud.delete_security_group(secgroups[secgroup]['id'])
 
 
 def dry_cleanup_secgroups(secgroups):
@@ -133,7 +133,7 @@ def dry_cleanup_secgroups(secgroups):
     for secgroup in secgroups:
         Summary.num_of_secgroups += 1
         show_cleanup('nova secgroup-delete {}'.format(
-            secgroups[secgroup]['name']))
+            secgroups[secgroup]['id']))
 
 
 def cleanup_resources(cloud, resource_selection, dry_run=True):
