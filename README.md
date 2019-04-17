@@ -98,7 +98,7 @@ cleanup.
 ### Blacklist
 
 There is a list of words which will keep your resources from being removed.
-The words are: 'slave', 'jenkins' and 'mirror'
+The words are: 'slave', 'jenkins', 'default' and 'mirror'
 
 ### How to add a new type of resource
 

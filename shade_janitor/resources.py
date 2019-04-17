@@ -23,7 +23,7 @@ class Resources(object):
     """
 
     def __init__(self, cloud):
-        self.blacklist = ['jenkins', 'slave', 'mirror']
+        self.blacklist = ['jenkins', 'slave', 'mirror', 'default']
         self._cloud = cloud
         if self._cloud is None:
             raise NoCloudException('No cloud provided')
