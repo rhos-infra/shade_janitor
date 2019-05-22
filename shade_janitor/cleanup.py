@@ -2,6 +2,7 @@
 
 import logging
 
+import shade
 from summary import Summary
 
 
@@ -54,8 +55,11 @@ def dry_cleanup_ports(ports):
 def cleanup_subnets(cloud, subnets):
     """Cleanup subnets."""
     for uuid in subnets:
-        Summary.num_of_subnets += 1
-        cloud.delete_subnet(uuid)
+        try:
+            cloud.delete_subnet(uuid)
+            Summary.num_of_subnets += 1
+        except shade.exc.OpenStackCloudHTTPError:
+            pass
 
 
 def dry_cleanup_subnets(subnets):
@@ -79,9 +83,23 @@ def dry_cleanup_networks(networks):
         show_cleanup('neutron net-delete {}'.format(uuid))
 
 
+def remove_default_gateway(cloud, router_id):
+    cloud._network_client.put(
+        "/routers/{id}".format(id=router_id),
+        json={"router": {"external_gateway_info": {}}})
+
+
 def cleanup_routers(cloud, routers):
     """Cleanup routers."""
     for uuid in routers:
+        router = cloud.get_router(uuid)
+        remove_default_gateway(cloud, uuid)
+        cloud.update_router(uuid, admin_state_up=False)
+        for port in cloud.list_router_interfaces(router):
+            cloud.update_port(port['id'], device_id='',
+                              admin_state_up=False)
+            cloud.delete_port(port['id'])
+            Summary.num_of_ports += 1
         Summary.num_of_routers += 1
         cloud.delete_router(uuid)
 
@@ -124,8 +142,11 @@ def dry_cleanup_keypairs(keypairs):
 def cleanup_secgroups(cloud, secgroups):
     """Cleanup security groups."""
     for secgroup in secgroups:
-        Summary.num_of_secgroups += 1
-        cloud.delete_security_group(secgroups[secgroup]['id'])
+        try:
+            cloud.delete_security_group(secgroups[secgroup]['id'])
+            Summary.num_of_secgroups += 1
+        except shade.exc.OpenStackCloudHTTPError:
+            pass
 
 
 def dry_cleanup_secgroups(secgroups):
@@ -150,29 +171,6 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
         if 'instances' in resource_selection:
             cleanup_instances(cloud, resource_selection['instances'])
 
-    if 'router_interfaces' in resource_selection:
-        router_ids = []
-        if 'routers' in resource_selection:
-            for r_uuid in resource_selection['routers']:
-                router_ids.append(r_uuid)
-
-        interface_entries = resource_selection['router_interfaces']
-
-        for r_uuid in router_ids:
-            for router in cloud.search_routers(r_uuid):
-                for key in interface_entries:
-                    inter = interface_entries[key]
-
-                    if dry_run:
-                        for sub_id in inter['subnet_ids']:
-                            show_cleanup(
-                                ('neutron router-interface-delete ' +
-                                 ' {0} {1}').format(
-                                    r_uuid, sub_id))
-                    else:
-                        cloud.remove_router_interface(
-                            router, port_id=inter['id'])
-
     if dry_run:
         if 'stacks' in resource_selection:
             dry_cleanup_stacks(resource_selection['stacks'])
@@ -193,14 +191,14 @@ def cleanup_resources(cloud, resource_selection, dry_run=True):
     else:
         if 'stacks' in resource_selection:
             cleanup_stacks(cloud, resource_selection['stacks'])
+        if 'routers' in resource_selection:
+            cleanup_routers(cloud, resource_selection['routers'])
         if 'ports' in resource_selection:
             cleanup_ports(cloud, resource_selection['ports'])
         if 'subnets' in resource_selection:
             cleanup_subnets(cloud, resource_selection['subnets'])
         if 'nets' in resource_selection:
             cleanup_networks(cloud, resource_selection['nets'])
-        if 'routers' in resource_selection:
-            cleanup_routers(cloud, resource_selection['routers'])
         if 'fips' in resource_selection:
             cleanup_floating_ips(cloud, resource_selection['fips'])
         if 'keypairs' in resource_selection:
