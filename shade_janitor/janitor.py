@@ -6,6 +6,7 @@ import logging
 import pprint
 import pytz
 import shade
+import sys
 
 from cleanup import cleanup_resources
 from resources import Resources
@@ -168,10 +169,16 @@ if __name__ == '__main__':
         resources = Resources(cloud)
 
     if args.old_instances:
-        resources = select_oldest(cloud, args)
-        cleanup = resources.get_selection()
-        do_cleanup(cloud, cleanup, pp, args)
-        resources = Resources(cloud)
+        b_run_cleanup = True
+        while b_run_cleanup:
+            try:
+                resources = select_oldest(cloud, args)
+                cleanup = resources.get_selection()
+                b_run_cleanup = (len(cleanup) > 0)
+                do_cleanup(cloud, cleanup, pp, args)
+                resources = Resources(cloud)
+            except:
+                print ("Unexpected error:", sys.exc_info()[0])
 
     if args.unused:
         resources.select_resources('')
