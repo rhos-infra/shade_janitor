@@ -13,9 +13,13 @@ def show_cleanup(cleanup_cmd):
 def cleanup_instances(cloud, instances):
     """Cleanup instances."""
     for uuid in instances:
-        Summary.num_of_instances += 1
-        cloud.delete_server(uuid, wait=True, delete_ips=True)
-
+        try:
+            cloud.delete_server(uuid, wait=True, delete_ips=True)
+            Summary.num_of_instances += 1
+        except shade.exc.OpenStackCloudHTTPError:
+            pass
+        except:
+            print ("Unexpected error:", sys.exc_info()[0])
 
 def dry_cleanup_instances(instances):
     """Dry cleanup of instances."""
