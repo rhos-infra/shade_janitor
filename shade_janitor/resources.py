@@ -1,4 +1,7 @@
+import logging
+import re
 import shade
+import time
 
 
 class NoCloudException(Exception):
@@ -261,3 +264,132 @@ class Resources(object):
     def get_selection(self):
         """Returns selected resources."""
         return self._selection
+
+
+class SelectUnusedResources(Resources):
+
+    # which port['device_owner'] values explicitely mean unused for us
+    # ... atm when it has just dhcp or routers plugged
+    # anything else is considered 'used'
+    PORT_OWNER_UNUSED = ('network:dhcp', 'network:router_interface')
+
+    def select_unuset_netresources(self,
+                                   search_substring='',
+                                   refine_count=3,
+                                   refine_delay=60,
+                                   exclude_flips=None,
+                                   exclude_pattern=None,
+                                   ):
+        def intersect(original, update):
+            for key in original.keys():
+                if key not in update:
+                    original.pop(key)
+            return original
+
+        def filter_name(collection, search_substring, exclude_matcher):
+            for item_id, item in collection.iteritems():
+                if search_substring and search_substring not in item['name']:
+                    continue
+                if exclude_matcher and exclude_matcher(item['name']):
+                    continue
+                yield (item_id, item)
+
+        flips = self.find_unused_flips(exclude_flips)
+        networks = {}
+        routers = {}
+        try:
+            networks = self.find_unused_networks()
+            routers = self.find_unused_routers(networks.keys())
+        except shade.exc.OpenStackCloudException:
+            logging.info('Seems Neutron is not available, ignoring networks'
+                         'and routers.')
+
+        run_count = 1
+        while run_count < refine_count and any((networks, routers, flips)):
+            run_count += 1
+
+            logging.info('Waiting %d seconds before recheck search %d/%d ...'
+                         % (refine_delay, run_count, refine_count))
+            time.sleep(refine_delay)
+
+            # if's are here to skip searching if the set is already empty
+            # (or also if we don't have network_client at all)
+            if networks:
+                networks = intersect(
+                    networks,
+                    self.find_unused_networks())
+            if routers:
+                routers = intersect(
+                    routers,
+                    self.find_unused_routers(networks.keys()))
+            if flips:
+                flips = intersect(
+                    flips,
+                    self.find_unused_flips(exclude_flips))
+
+        exclude_rgx = None
+        if exclude_pattern:
+            exclude_rgx = re.compile(exclude_pattern).match
+
+        for flip in flips.values():
+            if flip.floating_ip_address in exclude_flips:
+                logging.info('Found %s - ignoring!' % flip.ip)
+                continue
+            self._add_floatingip(flip)
+
+        for n_id, net in filter_name(networks, search_substring, exclude_rgx):
+            self._add('nets', n_id, net)
+
+        for r_id, rtr in filter_name(routers, search_substring, exclude_rgx):
+            self._add('routers', r_id, rtr['name'])
+
+        self.select_related_ports()
+
+    def find_unused_flips(self, exclude_ips=None):
+        """find floating IPs which are not attached to VM"""
+        unused = {}
+        for fip in self._cloud.list_floating_ips():
+            # fip.status not used as it differs between neutron and nova FlIPs
+            if not fip.attached and fip.fixed_ip_address is None:
+                unused[fip.id] = fip
+        return unused
+
+    def find_unused_networks(self):
+        """find networks without vm's"""
+        unused = {}
+        networks = self._cloud.list_networks()
+        ports = self._cloud.list_ports()
+        # query all ports at once, filtering in python is way faster then api
+
+        for net in networks:
+            if net.get('router:external', False) or net.get('shared', False):
+                continue
+
+            # search the ports if there is any
+            # for this network which is considered 'in-use' (vm)
+            used_ports = [
+                port for port in ports
+                if (port['network_id'] == net['id']
+                    and (port['device_owner'].lower() not in
+                         self.PORT_OWNER_UNUSED))
+            ]
+
+            if not any(used_ports):
+                unused[net['id']] = net
+        return unused
+
+    def find_unused_routers(self, unused_nets):
+        """find routers without ports or with ports only in unused networks"""
+        unused = {}
+        routers = self._cloud.list_routers()
+        ports = self._cloud.list_ports()
+        for router in routers:
+            router_ports = [
+                port for port in ports
+                if (port['device_id'] == router['id']
+                    and port['network_id'] not in unused_nets)
+            ]
+
+            if not any(router_ports):
+                unused[router['id']] = router
+        return unused
